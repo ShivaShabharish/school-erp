@@ -55,6 +55,16 @@ class Student extends Model
         return trim("{$this->first_name} {$this->last_name}");
     }
 
+    public function getAdmissionNumberAttribute(): string
+    {
+        return $this->admission_no ?? '';
+    }
+
+    public function getDateOfBirthAttribute(): ?string
+    {
+        return $this->dob?->toDateString();
+    }
+
     public function schoolClass(): BelongsTo
     {
         return $this->belongsTo(SchoolClass::class, 'school_class_id');

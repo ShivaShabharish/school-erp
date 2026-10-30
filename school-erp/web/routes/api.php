@@ -1,7 +1,10 @@
 <?php
 
+use App\Http\Controllers\Api\V1\AnnouncementController;
+use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\BiometricApiController;
-use Illuminate\Http\Request;
+use App\Http\Controllers\Api\V1\StudentPortalController;
+use App\Http\Middleware\EnsureApiEnabled;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -11,15 +14,39 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::prefix('v1')->group(function () {
+    // Health & Status
     Route::get('/ping', function () {
         return response()->json([
             'status' => 'success',
             'message' => 'School ERP API v1 is active',
             'school' => 'Test Subject Higher Secondary School',
+            'app_integration_enabled' => \App\Models\Setting::get('app_integration_enabled', 'false') === 'true',
             'timestamp' => now()->toIso8601String(),
         ]);
     });
 
-    // Phase 4: Biometric Punch API
+    // Phase 4: Biometric Machine Punch Interface (Always open for hardware terminal)
     Route::post('/biometric/punch', [BiometricApiController::class, 'punch'])->name('api.v1.biometric.punch');
+
+    // Mobile App REST API Gateway (Guarded by EnsureApiEnabled switch)
+    Route::middleware([EnsureApiEnabled::class])->group(function () {
+        // Auth
+        Route::post('/auth/token', [AuthController::class, 'login'])->name('api.v1.auth.token');
+
+        // Authenticated Endpoints via Sanctum Bearer Token
+        Route::middleware('auth:sanctum')->group(function () {
+            Route::get('/auth/user', [AuthController::class, 'me'])->name('api.v1.auth.user');
+            Route::post('/auth/revoke', [AuthController::class, 'logout'])->name('api.v1.auth.revoke');
+
+            // Student & Parent Portal Endpoints
+            Route::get('/student/profile', [StudentPortalController::class, 'profile'])->name('api.v1.student.profile');
+            Route::get('/student/attendance', [StudentPortalController::class, 'attendance'])->name('api.v1.student.attendance');
+            Route::get('/student/fees', [StudentPortalController::class, 'fees'])->name('api.v1.student.fees');
+            Route::get('/student/timetable', [StudentPortalController::class, 'timetable'])->name('api.v1.student.timetable');
+            Route::get('/student/homework', [StudentPortalController::class, 'homework'])->name('api.v1.student.homework');
+
+            // Circulars & Notices
+            Route::get('/announcements', [AnnouncementController::class, 'index'])->name('api.v1.announcements.index');
+        });
+    });
 });

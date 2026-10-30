@@ -5,6 +5,8 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -89,5 +91,25 @@ class User extends Authenticatable
             $roles = explode(',', $roles);
         }
         return in_array($this->role, $roles);
+    }
+
+    public function students(): HasMany
+    {
+        return $this->hasMany(Student::class, 'parent_id');
+    }
+
+    public function studentProfile(): HasOne
+    {
+        return $this->hasOne(Student::class, 'parent_id');
+    }
+
+    public function staff(): HasOne
+    {
+        return $this->hasOne(Staff::class, 'user_id');
+    }
+
+    public function staffProfile(): HasOne
+    {
+        return $this->hasOne(Staff::class, 'user_id');
     }
 }

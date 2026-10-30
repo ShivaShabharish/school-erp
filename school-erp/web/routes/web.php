@@ -144,6 +144,18 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
         Route::get('/id-cards/print/students', [\App\Http\Controllers\Communication\IdCardController::class, 'printStudents'])->name('id-cards.print-students');
         Route::get('/id-cards/print/staff', [\App\Http\Controllers\Communication\IdCardController::class, 'printStaff'])->name('id-cards.print-staff');
     });
+
+    // Phase 8: Settings & Safety
+    Route::prefix('settings')->name('settings.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Settings\SettingsController::class, 'index'])->name('index');
+        Route::post('/profile', [\App\Http\Controllers\Settings\SettingsController::class, 'updateProfile'])->name('update-profile');
+        Route::post('/academic-years', [\App\Http\Controllers\Settings\SettingsController::class, 'storeAcademicYear'])->name('store-year');
+        Route::post('/academic-years/{academicYear}/switch', [\App\Http\Controllers\Settings\SettingsController::class, 'switchAcademicYear'])->name('switch-year');
+        Route::post('/toggle-mobile-app', [\App\Http\Controllers\Settings\SettingsController::class, 'toggleMobileApp'])->name('toggle-mobile-app');
+        Route::get('/export', [\App\Http\Controllers\Settings\SettingsController::class, 'exportData'])->name('export');
+        Route::get('/backup/sql', [\App\Http\Controllers\Settings\SettingsController::class, 'downloadSqlBackup'])->name('backup.sql');
+        Route::get('/audit-logs', [\App\Http\Controllers\Settings\AuditLogController::class, 'index'])->name('audit-logs');
+    });
 });
 
 /*

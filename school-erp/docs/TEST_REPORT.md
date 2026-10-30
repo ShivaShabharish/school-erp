@@ -191,3 +191,35 @@
   - `GET /admin/communication/id-cards` (Identity Cards Preview & Filters) &rarr; HTTP 200 VERIFIED
   - `GET /admin/communication/id-cards/print/students` (Student CR-80 A4 Print Sheet) &rarr; HTTP 200 VERIFIED
   - `GET /admin/communication/id-cards/print/staff` (Staff CR-80 A4 Print Sheet) &rarr; HTTP 200 VERIFIED
+---
+
+### Phase 8 (P8) Settings & Safety
+- **Date**: 2026-10-30
+- **Database Migration & Seeding**:
+  - `php artisan migrate:fresh --seed` &rarr; **PASSED**
+  - Published Sanctum table: `personal_access_tokens`.
+  - Configured settings: `school_name`, `school_board`, `school_affiliation_no`, `school_location`, `currency_symbol`, `receipt_prefix_fees`, `receipt_prefix_store`, `biometric_api_secret`, `app_integration_enabled`.
+- **Automated Test Suite**:
+  - `php artisan test` &rarr; **66 passed (314 assertions), 0 failures** (Duration: 7.50s) &rarr; **PASSED**
+  - `SettingsSafetyTest > admin can view settings tabs` &rarr; PASS
+  - `SettingsSafetyTest > admin can update school profile and audited` &rarr; PASS (verified Setting updates and audit log record)
+  - `SettingsSafetyTest > admin can create and switch academic year` &rarr; PASS (session activation, previous session archiving)
+  - `SettingsSafetyTest > mobile app integration switch toggling` &rarr; PASS (dynamic boolean toggle between true/false)
+  - `SettingsSafetyTest > api returns 503 when mobile app integration disabled` &rarr; PASS (verified `EnsureApiEnabled` middleware and HTTP 503 response)
+  - `SettingsSafetyTest > api token issuance and portal access when enabled` &rarr; PASS (Sanctum token issue, /auth/user, /student/profile, /student/attendance, /student/fees, /announcements, /auth/revoke)
+  - `SettingsSafetyTest > admin can export csv and sql backup` &rarr; PASS (verified streamed UTF-8 CSV response and 900+ KB SQL snapshot)
+  - `SettingsSafetyTest > admin can view audit logs` &rarr; PASS (action filtering, user filtering, JSON payload inspection)
+- **Frontend Asset Compilation**:
+  - `npm run build` &rarr; **0 errors, 0 warnings** (Vite built in 4.86s) &rarr; **PASSED**
+- **Live Workflow Click-Through**:
+  - `GET /admin/settings?tab=profile` (School Profile Configuration) &rarr; HTTP 200 VERIFIED
+  - `GET /admin/settings?tab=academic_years` (Academic Years Registry & Switcher) &rarr; HTTP 200 VERIFIED
+  - `GET /admin/settings?tab=safety_api` (Mobile App Gateway & API Specs) &rarr; HTTP 200 VERIFIED
+  - `GET /admin/settings?tab=roles` (Roles & Permission Matrix) &rarr; HTTP 200 VERIFIED
+  - `GET /admin/settings?tab=backup` (CSV Data Exports Center) &rarr; HTTP 200 VERIFIED
+  - `GET /admin/settings/audit-logs` (Immutable Security Audit Trail) &rarr; HTTP 200 VERIFIED
+  - `GET /admin/settings/export?type=students` (Students CSV Export) &rarr; HTTP 200 & Content-Type `text/csv; charset=UTF-8` VERIFIED
+  - `GET /admin/settings/backup/sql` (Complete Database SQL Snapshot) &rarr; HTTP 200 & Content-Type `application/sql` VERIFIED
+  - `GET /api/v1/ping` (API v1 Ping & Gateway Status) &rarr; HTTP 200 JSON VERIFIED
+- **Documentation**:
+  - Published comprehensive mobile app API contract in `docs/API.md`.

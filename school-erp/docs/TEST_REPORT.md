@@ -162,3 +162,32 @@
   - `GET /accounts/reports/monthly` (Monthly Statement) &rarr; HTTP 200 VERIFIED
 
 
+---
+
+### Phase 7 (P7) Communication & Records
+- **Date**: 2026-10-30
+- **Database Migration & Seeding**:
+  - `php artisan migrate:fresh --seed` &rarr; **PASSED**
+  - Created tables: `calendar_events`, `announcements`, `ptm_schedules`, `parent_notes`, `certificates`.
+  - Seeded: Tamil Nadu state holidays (Gandhi Jayanti, Deepavali, Pongal, Independence Day), sports days, science fairs, exam windows; broadcast circulars with pinning and class/staff targeting; Class 10 & 12 PTM schedules; two-way parent inquiry tickets with teacher replies; sequential official Bonafide certificates (`SCH/26-27/BON-XXXXX`) and Tamil Nadu State Board 16-field Transfer Certificates (`SCH/26-27/TC-XXXXX`).
+- **Automated Test Suite**:
+  - `php artisan test` &rarr; **58 passed (259 assertions), 0 failures** (Duration: 6.46s) &rarr; **PASSED**
+  - `CommunicationRecordsTest > admin can view calendar and create event` &rarr; PASS
+  - `CommunicationRecordsTest > admin can view announcements and broadcast circular` &rarr; PASS
+  - `CommunicationRecordsTest > admin can schedule ptm for class section` &rarr; PASS
+  - `CommunicationRecordsTest > parent note submission and reply` &rarr; PASS
+  - `CommunicationRecordsTest > admin can issue bonafide certificate and download pdf` &rarr; PASS (Content-Type `application/pdf`, crest, seal box, verified issuance)
+  - `CommunicationRecordsTest > admin can issue transfer certificate and download pdf` &rarr; PASS (Content-Type `application/pdf`, standard 16-field TN format)
+  - `CommunicationRecordsTest > admin can view id cards and print sheets` &rarr; PASS (verified index preview, student 8-per-page A4 print layout, staff print layout)
+- **Frontend Asset Compilation**:
+  - `npm run build` &rarr; **0 errors, 0 warnings** (Vite built in 5.59s) &rarr; **PASSED**
+- **Live Workflow Click-Through**:
+  - `GET /admin/communication/calendar` (Academic Calendar & Holidays) &rarr; HTTP 200 VERIFIED
+  - `GET /admin/communication/announcements` (Circulars & Notice Board) &rarr; HTTP 200 VERIFIED
+  - `GET /admin/communication/ptm` (Parent-Teacher Meetings Console) &rarr; HTTP 200 VERIFIED
+  - `GET /admin/communication/notes` (Parent Queries & Replies Inbox) &rarr; HTTP 200 VERIFIED
+  - `GET /admin/communication/certificates` (Certificates Registry) &rarr; HTTP 200 VERIFIED
+  - `GET /admin/communication/certificates/{id}/download` (Bonafide & TC PDFs) &rarr; HTTP 200 & Content-Type `application/pdf` VERIFIED
+  - `GET /admin/communication/id-cards` (Identity Cards Preview & Filters) &rarr; HTTP 200 VERIFIED
+  - `GET /admin/communication/id-cards/print/students` (Student CR-80 A4 Print Sheet) &rarr; HTTP 200 VERIFIED
+  - `GET /admin/communication/id-cards/print/staff` (Staff CR-80 A4 Print Sheet) &rarr; HTTP 200 VERIFIED

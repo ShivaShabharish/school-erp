@@ -113,6 +113,37 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 
     Route::get('/academics/student-attendance', [\App\Http\Controllers\Academics\StudentAttendanceController::class, 'index'])->name('academics.student-attendance.index');
     Route::post('/academics/student-attendance', [\App\Http\Controllers\Academics\StudentAttendanceController::class, 'record'])->name('academics.student-attendance.record');
+
+    // Phase 7: Communication & Records
+    Route::prefix('communication')->name('communication.')->group(function () {
+        // School Calendar & Holidays
+        Route::get('/calendar', [\App\Http\Controllers\Communication\CalendarController::class, 'index'])->name('calendar.index');
+        Route::post('/calendar', [\App\Http\Controllers\Communication\CalendarController::class, 'store'])->name('calendar.store');
+        Route::delete('/calendar/{event}', [\App\Http\Controllers\Communication\CalendarController::class, 'destroy'])->name('calendar.destroy');
+
+        // Circulars & Announcements
+        Route::get('/announcements', [\App\Http\Controllers\Communication\AnnouncementController::class, 'index'])->name('announcements.index');
+        Route::post('/announcements', [\App\Http\Controllers\Communication\AnnouncementController::class, 'store'])->name('announcements.store');
+
+        // Parent-Teacher Meeting (PTM)
+        Route::get('/ptm', [\App\Http\Controllers\Communication\PtmController::class, 'index'])->name('ptm.index');
+        Route::post('/ptm', [\App\Http\Controllers\Communication\PtmController::class, 'store'])->name('ptm.store');
+
+        // Parent Notes & Inquiries
+        Route::get('/notes', [\App\Http\Controllers\Communication\ParentNoteController::class, 'index'])->name('notes.index');
+        Route::post('/notes', [\App\Http\Controllers\Communication\ParentNoteController::class, 'store'])->name('notes.store');
+        Route::post('/notes/{note}/reply', [\App\Http\Controllers\Communication\ParentNoteController::class, 'reply'])->name('notes.reply');
+
+        // Certificates (Bonafide & TC)
+        Route::get('/certificates', [\App\Http\Controllers\Communication\CertificateController::class, 'index'])->name('certificates.index');
+        Route::post('/certificates/generate', [\App\Http\Controllers\Communication\CertificateController::class, 'generate'])->name('certificates.generate');
+        Route::get('/certificates/{certificate}/download', [\App\Http\Controllers\Communication\CertificateController::class, 'download'])->name('certificates.download');
+
+        // Student & Staff ID Cards
+        Route::get('/id-cards', [\App\Http\Controllers\Communication\IdCardController::class, 'index'])->name('id-cards.index');
+        Route::get('/id-cards/print/students', [\App\Http\Controllers\Communication\IdCardController::class, 'printStudents'])->name('id-cards.print-students');
+        Route::get('/id-cards/print/staff', [\App\Http\Controllers\Communication\IdCardController::class, 'printStaff'])->name('id-cards.print-staff');
+    });
 });
 
 /*

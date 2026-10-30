@@ -3,8 +3,13 @@
 namespace Database\Seeders;
 
 use App\Models\AcademicYear;
+use App\Models\Announcement;
+use App\Models\CalendarEvent;
+use App\Models\Certificate;
 use App\Models\Expense;
 use App\Models\FeeReceipt;
+use App\Models\ParentNote;
+use App\Models\PtmSchedule;
 use App\Models\SchoolClass;
 use App\Models\Section;
 use App\Models\Setting;
@@ -761,7 +766,212 @@ class DatabaseSeeder extends Seeder
             );
         }
 
-        // 11. Default System Settings
+        // 11. Communication & Records (Calendar, Announcements, PTM, Parent Notes, Certificates)
+        $adminUser = User::where('role', 'admin')->first() ?? User::first();
+        $principalUser = User::where('role', 'principal')->first() ?? $adminUser;
+        $parentUser = User::where('role', 'parent')->first();
+        $firstStudent = Student::first();
+        $secondStudent = Student::skip(1)->first() ?? $firstStudent;
+
+        // Calendar Events
+        $calendarEvents = [
+            [
+                'title' => 'Independence Day Celebrations & Flag Hoisting',
+                'event_type' => 'function',
+                'start_date' => '2026-08-15',
+                'end_date' => '2026-08-15',
+                'description' => 'Flag hoisting at 08:30 AM followed by student march-past and cultural events.',
+                'is_holiday' => false,
+                'target_audience' => 'all',
+            ],
+            [
+                'title' => 'Gandhi Jayanti Public Holiday',
+                'event_type' => 'holiday',
+                'start_date' => '2026-10-02',
+                'end_date' => '2026-10-02',
+                'description' => 'State and National Holiday. Campus closed.',
+                'is_holiday' => true,
+                'target_audience' => 'all',
+            ],
+            [
+                'title' => 'Annual Sports Meet 2026',
+                'event_type' => 'sports',
+                'start_date' => '2026-10-24',
+                'end_date' => '2026-10-25',
+                'description' => 'Inter-house athletic track & field events at District Stadium Pudukkottai.',
+                'is_holiday' => false,
+                'target_audience' => 'students',
+            ],
+            [
+                'title' => 'Deepavali Festival Vacation',
+                'event_type' => 'holiday',
+                'start_date' => '2026-11-07',
+                'end_date' => '2026-11-10',
+                'description' => 'Deepavali festival holidays as declared by Tamil Nadu School Education Dept.',
+                'is_holiday' => true,
+                'target_audience' => 'all',
+            ],
+            [
+                'title' => 'Science & Technology Innovation Exhibition',
+                'event_type' => 'academic',
+                'start_date' => '2026-12-15',
+                'end_date' => '2026-12-16',
+                'description' => 'Working model demonstrations by classes 6 to 12. Parents and public invited.',
+                'is_holiday' => false,
+                'target_audience' => 'all',
+            ],
+            [
+                'title' => 'Pongal Vacation',
+                'event_type' => 'holiday',
+                'start_date' => '2027-01-14',
+                'end_date' => '2027-01-17',
+                'description' => 'Thai Pongal and Uzhavar Thirunal state holidays.',
+                'is_holiday' => true,
+                'target_audience' => 'all',
+            ],
+        ];
+
+        foreach ($calendarEvents as $evt) {
+            CalendarEvent::firstOrCreate(
+                [
+                    'academic_year_id' => $academicYear->id,
+                    'title' => $evt['title'],
+                    'start_date' => $evt['start_date'],
+                ],
+                array_merge($evt, ['created_by' => $principalUser?->id])
+            );
+        }
+
+        // Announcements
+        $announcements = [
+            [
+                'title' => 'Term 1 Examinations Time Table & Preparation Guidelines',
+                'content' => 'The Term 1 CCE written examinations will commence from September 15. All students are advised to revise lessons and bring necessary geometry and writing instruments. Hall tickets will be issued by the respective class teachers.',
+                'category' => 'academic',
+                'target_type' => 'all',
+                'publish_date' => $today,
+                'is_pinned' => true,
+            ],
+            [
+                'title' => 'Staff Meeting: Evaluation Rubrics for State Board CCE',
+                'content' => 'All teaching faculty are requested to assemble in the AV Seminar Hall at 04:00 PM today for alignment on FA-A, FA-B, and Summative Assessment grade distributions.',
+                'category' => 'general',
+                'target_type' => 'staff',
+                'publish_date' => $today,
+                'is_pinned' => false,
+            ],
+            [
+                'title' => 'Special Coaching Classes for Class 10 Students',
+                'content' => 'Mandatory Saturday remedial coaching classes in Mathematics and Physical Sciences for 10th standard pupils will be held from 09:00 AM to 12:30 PM starting this weekend.',
+                'category' => 'academic',
+                'target_type' => 'class',
+                'school_class_id' => $class10->id,
+                'publish_date' => $today,
+                'is_pinned' => false,
+            ],
+        ];
+
+        foreach ($announcements as $ann) {
+            Announcement::firstOrCreate(
+                [
+                    'academic_year_id' => $academicYear->id,
+                    'title' => $ann['title'],
+                ],
+                array_merge($ann, ['author_id' => $principalUser?->id])
+            );
+        }
+
+        // PTM Schedules
+        if ($sections10->isNotEmpty()) {
+            PtmSchedule::firstOrCreate(
+                [
+                    'academic_year_id' => $academicYear->id,
+                    'school_class_id' => $class10->id,
+                    'section_id' => $sections10->first()->id,
+                    'meeting_date' => \Carbon\Carbon::parse($today)->addDays(5)->toDateString(),
+                ],
+                [
+                    'start_time' => '09:30:00',
+                    'end_time' => '13:00:00',
+                    'venue' => 'Room 112 (10-A Classroom)',
+                    'agenda' => 'Review of Unit Test marks, board exam strategy, and individual student progress counseling with parents.',
+                    'status' => 'scheduled',
+                    'created_by' => $adminUser?->id,
+                ]
+            );
+        }
+
+        // Parent Notes
+        if ($firstStudent && $parentUser) {
+            ParentNote::firstOrCreate(
+                [
+                    'student_id' => $firstStudent->id,
+                    'parent_id' => $parentUser->id,
+                    'subject' => 'Enquiry regarding School Bus Route #4 Pickup Time',
+                ],
+                [
+                    'staff_id' => $teachingStaff->first()?->id,
+                    'message' => 'Respected Class Teacher, kindly let us know if the morning pickup timing at Alangudi Bus Stand remains 07:45 AM or has changed due to road repair works.',
+                    'reply' => 'Dear Parent, the route pickup remains at 07:50 AM sharp. The driver Mr. Murugan will wait for 3 minutes at the designated stop.',
+                    'replied_at' => Carbon::now()->subHours(4),
+                    'status' => 'replied',
+                ]
+            );
+
+            ParentNote::firstOrCreate(
+                [
+                    'student_id' => $firstStudent->id,
+                    'parent_id' => $parentUser->id,
+                    'subject' => 'Request for special permission for upcoming inter-school chess tournament',
+                ],
+                [
+                    'staff_id' => null,
+                    'message' => 'My ward has been selected to represent Pudukkottai District in the State Chess Championship on Friday. Kindly grant attendance on duty.',
+                    'reply' => null,
+                    'replied_at' => null,
+                    'status' => 'pending',
+                ]
+            );
+        }
+
+        // Sample Official Certificates
+        if ($firstStudent) {
+            Certificate::firstOrCreate(
+                ['certificate_no' => 'SCH/26-27/BON-00001'],
+                [
+                    'student_id' => $firstStudent->id,
+                    'academic_year_id' => $academicYear->id,
+                    'certificate_type' => 'bonafide',
+                    'issue_date' => $today,
+                    'reason' => 'Passport Application & Regional Verification',
+                    'details' => ['purpose' => 'Passport Application'],
+                    'issued_by' => $adminUser?->id,
+                ]
+            );
+        }
+
+        if ($secondStudent) {
+            Certificate::firstOrCreate(
+                ['certificate_no' => 'SCH/26-27/TC-00001'],
+                [
+                    'student_id' => $secondStudent->id,
+                    'academic_year_id' => $academicYear->id,
+                    'certificate_type' => 'transfer_certificate',
+                    'issue_date' => $today,
+                    'reason' => 'Family Relocation to Chennai',
+                    'details' => [
+                        'leaving_date' => $today,
+                        'conduct' => 'EXCELLENT',
+                        'fee_dues_cleared' => 'Yes',
+                        'reason_for_leaving' => 'Family Relocation to Chennai',
+                        'identification_marks' => '1. A mole on the right cheek; 2. A birthmark on left shoulder',
+                    ],
+                    'issued_by' => $adminUser?->id,
+                ]
+            );
+        }
+
+        // 12. Default System Settings
         $settings = [
             'school_name' => 'Test Subject Higher Secondary School',
             'school_board' => 'Tamil Nadu State Board',

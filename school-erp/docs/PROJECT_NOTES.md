@@ -60,6 +60,7 @@
 - **Authentication**: `app/Http/Controllers/Auth/`, `resources/views/auth/login.blade.php`
 - **Role Middleware**: `app/Http/Middleware/RoleMiddleware.php`
 - **Admin Dashboard**: `app/Http/Controllers/Admin/DashboardController.php`, `resources/views/admin/dashboard.blade.php`
+- **Business Reporting & Aggregations**: `app/Services/ReportService.php`
 - **Accounts & Billing**: `app/Http/Controllers/Accounts/`, `resources/views/accounts/dashboard.blade.php`
 - **Students & Admissions**: `app/Http/Controllers/Students/`, `resources/views/students/`
 - **Staff, Biometric & Leaves**: `app/Http/Controllers/Staff/`, `resources/views/staff/dashboard.blade.php`
@@ -68,13 +69,14 @@
 - **Communication & Records**: `app/Http/Controllers/Communication/`, `resources/views/communication/`
 - **Settings & API Config**: `app/Http/Controllers/Settings/`, `resources/views/settings/`
 - **Biometric Punch API**: `POST /api/v1/biometric/punch` &rarr; `app/Http/Controllers/Api/V1/`
+- **Live Metrics Polling**: `GET /admin/metrics/live` &rarr; `Admin\DashboardController@liveMetrics`
 - **System Health**: `GET /health` &rarr; `routes/web.php`
 
 ---
 
 ## Phase Checklist
 - [x] **P1 Foundation**: Environment verified, database connected, Laravel 11 scaffolded, auth, roles, layout shell, design system, /health endpoint, seeders, scripts. Completed & fully tested.
-- [ ] **P2 Admin Dashboard**: Live tiles, polling endpoints, class-wise matrix, 7-day attendance trend, alerts widget.
+- [x] **P2 Admin Dashboard**: Live tiles (students present, staff present, staff on leave, today's collection, month margin), dynamic class-wise strength/turnout table (Classes LKG-12), 7-day attendance trend chart, operational alerts (late staff, fee defaulters, low stock), 10s auto-refresh polling endpoint. Completed & fully tested.
 - [ ] **P3 Students & Admissions**: Enquiry to admission workflow, student 360 profile, promotion engine, CSV import.
 - [ ] **P4 Staff & Attendance**: Biometric punch API, simulator, live attendance, leave approvals, payroll payslip PDF.
 - [ ] **P5 Academics**: Timetable clash detection, substitution recommendation, CCE exams, marks, report card PDF.

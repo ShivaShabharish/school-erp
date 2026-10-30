@@ -5,36 +5,34 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\AcademicYear;
 use App\Models\SchoolClass;
-use App\Models\User;
+use App\Services\ReportService;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class DashboardController extends Controller
 {
+    public function __construct(
+        protected ReportService $reportService
+    ) {}
+
     public function index(): View
     {
         $currentYear = AcademicYear::current();
-        $totalStaff = User::whereIn('role', ['teacher', 'staff'])->count();
-        $totalParents = User::where('role', 'parent')->count();
         $classesCount = SchoolClass::count();
 
-        // Sample metric foundations ready for Phase 2 live data
-        $metrics = [
-            'total_students' => 312,
-            'students_present' => 298,
-            'students_attendance_pct' => 95.5,
-            'total_staff' => $totalStaff ?: 24,
-            'staff_present' => 23,
-            'staff_on_leave' => 1,
-            'today_fee_collection' => 48500,
-            'month_collection' => 1425000,
-            'month_expenses' => 782000,
-            'low_stock_items' => 3,
-            'fee_defaulters_count' => 14,
-        ];
+        $metrics = $this->reportService->getDashboardMetrics();
+        $classWiseData = $this->reportService->getClassWiseAttendance();
+        $trendData = $this->reportService->getAttendanceTrend();
+        $alerts = $this->reportService->getOperationalAlerts();
 
-        return view('admin.dashboard', compact('metrics', 'currentYear', 'classesCount'));
+        return view('admin.dashboard', compact(
+            'metrics',
+            'currentYear',
+            'classesCount',
+            'classWiseData',
+            'trendData',
+            'alerts'
+        ));
     }
 
     /**
@@ -42,15 +40,20 @@ class DashboardController extends Controller
      */
     public function liveMetrics(): JsonResponse
     {
+        $metrics = $this->reportService->getDashboardMetrics();
+        $alerts = $this->reportService->getOperationalAlerts();
+
         return response()->json([
             'status' => 'success',
             'timestamp' => now()->format('h:i:s A'),
             'metrics' => [
-                'students_present' => 298,
-                'students_attendance_pct' => 95.5,
-                'staff_present' => 23,
-                'staff_on_leave' => 1,
-                'today_fee_collection' => 48500,
+                'students_present' => $metrics['students_present'],
+                'students_attendance_pct' => $metrics['students_attendance_pct'],
+                'staff_present' => $metrics['staff_present'],
+                'staff_on_leave' => $metrics['staff_on_leave'],
+                'today_fee_collection' => $metrics['today_fee_collection'],
+                'net_month_margin' => $metrics['net_month_margin'],
+                'total_alerts' => $alerts['total_alerts'],
             ],
         ]);
     }

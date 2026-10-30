@@ -79,6 +79,21 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 
     Route::get('/classes', [\App\Http\Controllers\Students\ClassDetailController::class, 'index'])->name('classes.index');
     Route::get('/classes/{class}/sections/{section}', [\App\Http\Controllers\Students\ClassDetailController::class, 'show'])->name('classes.show');
+
+    // Phase 4: Staff, Attendance, Leaves & Payroll
+    Route::get('/staff/biometric-simulator', [\App\Http\Controllers\Staff\AttendanceController::class, 'biometricSimulator'])->name('staff.biometric-simulator');
+    Route::post('/staff/biometric-simulator/punch', [\App\Http\Controllers\Staff\AttendanceController::class, 'simulatePunch'])->name('staff.simulate-punch');
+    Route::get('/staff/attendance', [\App\Http\Controllers\Staff\AttendanceController::class, 'index'])->name('staff.attendance');
+
+    Route::get('/staff/leaves', [\App\Http\Controllers\Staff\LeaveController::class, 'index'])->name('staff.leaves.index');
+    Route::post('/staff/leaves', [\App\Http\Controllers\Staff\LeaveController::class, 'apply'])->name('staff.leaves.apply');
+    Route::post('/staff/leaves/{leaveApplication}/approve', [\App\Http\Controllers\Staff\LeaveController::class, 'approve'])->name('staff.leaves.approve');
+    Route::post('/staff/leaves/{leaveApplication}/reject', [\App\Http\Controllers\Staff\LeaveController::class, 'reject'])->name('staff.leaves.reject');
+
+    Route::get('/staff/payroll', [\App\Http\Controllers\Staff\PayrollController::class, 'index'])->name('staff.payroll.index');
+    Route::get('/staff/payroll/{payroll}/payslip', [\App\Http\Controllers\Staff\PayrollController::class, 'downloadPayslip'])->name('staff.payroll.payslip');
+
+    Route::resource('staff', \App\Http\Controllers\Staff\StaffController::class);
 });
 
 /*

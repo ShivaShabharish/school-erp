@@ -61,3 +61,35 @@
   - `GET /admin/students/promotion` (Batch Promotion Wizard) &rarr; HTTP 200 VERIFIED
   - `GET /admin/classes` (Classes Overview Grid) &rarr; HTTP 200 VERIFIED
   - `GET /admin/classes/1/sections/1` (Section Roster) &rarr; HTTP 200 VERIFIED
+
+---
+
+### Phase 4 (P4) Staff & Attendance
+- **Date**: 2026-10-30
+- **Database Migration & Seeding**:
+  - `php artisan migrate:fresh --seed` &rarr; **PASSED**
+  - Created tables: `leave_types`, `staff_leave_quotas`, `leave_applications`, `payrolls`.
+  - Added profile fields to `staff`: `gender`, `dob`, `blood_group`, `bank_account_no`, `bank_name`, `bank_ifsc`, `address`.
+  - Seeded: Leave types (CL, ML, EL), annual staff leave quotas, sample leave applications, October 2026 payroll sheet.
+- **Automated Test Suite**:
+  - `php artisan test` &rarr; **31 passed (143 assertions), 0 failures** (Duration: 2.46s) &rarr; **PASSED**
+  - `StaffAttendanceTest > admin can view staff directory` &rarr; PASS
+  - `StaffAttendanceTest > admin can onboard new staff` &rarr; PASS (user account creation, role assignment, leave quota auto-initialization)
+  - `StaffAttendanceTest > admin can view 360 staff profile` &rarr; PASS (7th CPC compensation structure, biometric punctuality score, leave balances, bank coordinates)
+  - `StaffAttendanceTest > biometric api punch endpoint` &rarr; PASS (header auth check, device verification, punch-in/punch-out handling)
+  - `StaffAttendanceTest > admin can simulate biometric punch` &rarr; PASS (biometric simulator console execution and live log update)
+  - `StaffAttendanceTest > admin can view daily attendance log` &rarr; PASS (reporting cutoff ≤ 08:30 AM on-time vs late calculation, turnout stats)
+  - `StaffAttendanceTest > leave workflow apply and approve` &rarr; PASS (leave application, approval, quota deduction, and automatic attendance status update)
+  - `StaffAttendanceTest > payroll generation and payslip pdf download` &rarr; PASS (salary breakdown calculation, sequential payslip number, DomPDF payslip streaming)
+- **Frontend Asset Compilation**:
+  - `npm run build` &rarr; **0 errors, 0 warnings** (Vite built in 6.14s) &rarr; **PASSED**
+- **Live Workflow Click-Through**:
+  - `GET /admin/staff` (Staff Directory) &rarr; HTTP 200 VERIFIED
+  - `GET /admin/staff/create` (Personnel Onboarding Form) &rarr; HTTP 200 VERIFIED
+  - `GET /admin/staff/1` (360° Staff Profile) &rarr; HTTP 200 VERIFIED
+  - `GET /admin/staff/attendance` (Live Biometric Attendance Board) &rarr; HTTP 200 VERIFIED
+  - `GET /admin/staff/biometric-simulator` (Interactive Diagnostic Simulator) &rarr; HTTP 200 VERIFIED
+  - `GET /admin/staff/leaves` (Leave Management & Approvals) &rarr; HTTP 200 VERIFIED
+  - `GET /admin/staff/payroll` (Monthly Salary Sheet) &rarr; HTTP 200 VERIFIED
+  - `GET /admin/staff/payroll/1/payslip` (DomPDF Payslip Download) &rarr; HTTP 200 & Content-Type `application/pdf` VERIFIED
+  - `POST /api/v1/biometric/punch` (REST API Biometric Machine Interface) &rarr; HTTP 200 JSON VERIFIED

@@ -78,7 +78,7 @@
 - [x] **P1 Foundation**: Environment verified, database connected, Laravel 11 scaffolded, auth, roles, layout shell, design system, /health endpoint, seeders, scripts. Completed & fully tested.
 - [x] **P2 Admin Dashboard**: Live tiles (students present, staff present, staff on leave, today's collection, month margin), dynamic class-wise strength/turnout table (Classes LKG-12), 7-day attendance trend chart, operational alerts (late staff, fee defaulters, low stock), 10s auto-refresh polling endpoint. Completed & fully tested.
 - [x] **P3 Students & Admissions**: Enquiry to admission pipeline with conversion modal, comprehensive 360° student profile with document verification & fee receipts history, batch class-to-class promotion wizard with audit logs, CSV import/export, and class/section rosters. Completed & fully tested.
-- [ ] **P4 Staff & Attendance**: Biometric punch API, simulator, live attendance, leave approvals, payroll payslip PDF.
+- [x] **P4 Staff & Attendance**: Staff directory & 360 profiles, live attendance logs with reporting cutoff (08:30 AM), biometric punch API (`POST /api/v1/biometric/punch`), admin biometric simulator console, leave management with quotas (CL, ML, EL) & approval workflow, and monthly salary sheet with DomPDF payslips. Completed & fully tested.
 - [ ] **P5 Academics**: Timetable clash detection, substitution recommendation, CCE exams, marks, report card PDF.
 - [ ] **P6 Accounts & Billing**: Fee structure, installments, concessions, PDF receipts, expense ledger, store inventory POS.
 - [ ] **P7 Communication & Records**: School calendar, targeted announcements, PTM scheduling, TC/Bonafide certificates, ID cards.

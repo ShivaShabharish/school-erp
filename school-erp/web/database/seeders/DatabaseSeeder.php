@@ -241,6 +241,72 @@ class DatabaseSeeder extends Seeder
             );
         }
 
+        // 5b. Leave Types, Quotas & Applications
+        $leaveTypes = [
+            ['name' => 'Casual Leave', 'code' => 'CL', 'days_per_year' => 12, 'description' => 'Discretionary casual leave'],
+            ['name' => 'Medical Leave', 'code' => 'ML', 'days_per_year' => 10, 'description' => 'Certified sick and medical absence'],
+            ['name' => 'Earned Leave', 'code' => 'EL', 'days_per_year' => 15, 'description' => 'Earned privilege vacation leave'],
+        ];
+
+        $createdLeaveTypes = [];
+        foreach ($leaveTypes as $lt) {
+            $createdLeaveTypes[] = \App\Models\LeaveType::firstOrCreate(['code' => $lt['code']], $lt);
+        }
+
+        foreach ($createdStaff as $stf) {
+            foreach ($createdLeaveTypes as $clt) {
+                \App\Models\StaffLeaveQuota::firstOrCreate(
+                    [
+                        'staff_id' => $stf->id,
+                        'leave_type_id' => $clt->id,
+                        'academic_year_id' => $academicYear->id,
+                    ],
+                    [
+                        'allocated_days' => $clt->days_per_year,
+                        'used_days' => rand(0, 3),
+                    ]
+                );
+            }
+        }
+
+        // Create sample pending and approved leave applications
+        if (count($createdStaff) >= 3) {
+            \App\Models\LeaveApplication::firstOrCreate(
+                [
+                    'staff_id' => $createdStaff[4]->id,
+                    'start_date' => $today,
+                    'end_date' => $today,
+                ],
+                [
+                    'leave_type_id' => $createdLeaveTypes[0]->id,
+                    'days_count' => 1.0,
+                    'reason' => 'Family function at native place in Trichy',
+                    'status' => 'approved',
+                    'approved_by' => $usersMap['principal']->id,
+                    'remarks' => 'Approved by Principal',
+                ]
+            );
+
+            \App\Models\LeaveApplication::firstOrCreate(
+                [
+                    'staff_id' => $createdStaff[2]->id,
+                    'start_date' => \Carbon\Carbon::parse($today)->addDays(2)->toDateString(),
+                    'end_date' => \Carbon\Carbon::parse($today)->addDays(3)->toDateString(),
+                ],
+                [
+                    'leave_type_id' => $createdLeaveTypes[1]->id,
+                    'days_count' => 2.0,
+                    'reason' => 'Scheduled medical dental checkup',
+                    'status' => 'pending',
+                ]
+            );
+        }
+
+        // 5c. Initial Monthly Payroll (October 2026)
+        $currentMonth = \Carbon\Carbon::now()->format('Y-m');
+        $payrollService = app(\App\Services\PayrollService::class);
+        $payrollService->generateMonthlyPayroll($currentMonth);
+
         // 6. Realistic Students (~308 students across 28 sections)
         $firstNames = ['Aarav', 'Dharun', 'Karthik', 'Sanjay', 'Vignesh', 'Manoj', 'Naveen', 'Surya', 'Praveen', 'Rohit', 'Ananya', 'Divya', 'Harini', 'Janani', 'Keerthana', 'Meera', 'Pooja', 'Rithika', 'Sneha', 'Varsha', 'Ajay', 'Balaji', 'Chandru', 'Dinesh', 'Ganesh', 'Hari', 'Iniyan', 'Jeeva', 'Kamal', 'Logesh'];
         $lastNames = ['Santhosh', 'Raman', 'Kumar', 'Sundaram', 'Murugan', 'Velan', 'Subramaniam', 'Natarajan', 'Selvam', 'Pandian', 'Balan', 'Chandran', 'Dharmalingam', 'Govindan', 'Ilangovan'];

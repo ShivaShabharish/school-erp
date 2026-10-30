@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\V1\BiometricApiController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -18,4 +19,7 @@ Route::prefix('v1')->group(function () {
             'timestamp' => now()->toIso8601String(),
         ]);
     });
+
+    // Phase 4: Biometric Punch API
+    Route::post('/biometric/punch', [BiometricApiController::class, 'punch'])->name('api.v1.biometric.punch');
 });

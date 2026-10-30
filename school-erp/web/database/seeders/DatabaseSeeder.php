@@ -392,10 +392,11 @@ class DatabaseSeeder extends Seeder
                 default => 8000.00,
             };
 
-            FeeReceipt::firstOrCreate(
+            $receipt = FeeReceipt::firstOrCreate(
                 ['receipt_no' => 'SCH/2026-27/REC-' . str_pad($idx + 1, 5, '0', STR_PAD_LEFT)],
                 [
                     'student_id' => $st->id,
+                    'academic_year_id' => $academicYear->id,
                     'amount_paid' => $amt,
                     'payment_method' => ['Cash', 'UPI', 'Bank Transfer'][$idx % 3],
                     'receipt_date' => $recDate,
@@ -403,6 +404,185 @@ class DatabaseSeeder extends Seeder
                     'notes' => 'Term 1 / Term 2 Tuition Fee',
                 ]
             );
+
+            \App\Models\FeeReceiptItem::firstOrCreate(
+                [
+                    'fee_receipt_id' => $receipt->id,
+                    'description' => 'Tuition & Academic Term Fee (Term 1)',
+                ],
+                [
+                    'amount' => $amt,
+                ]
+            );
+        }
+
+        // 8a. Class Fee Structures Master (LKG to 12)
+        $allClasses = SchoolClass::all();
+        $createdFeeStructures = [];
+        foreach ($allClasses as $cls) {
+            $baseTuition = match (true) {
+                str_contains($cls->name, '11') || str_contains($cls->name, '12') => 18000,
+                str_contains($cls->name, '9') || str_contains($cls->name, '10') => 15000,
+                str_contains($cls->name, '6') || str_contains($cls->name, '7') || str_contains($cls->name, '8') => 12000,
+                str_contains($cls->name, '1') || str_contains($cls->name, '2') || str_contains($cls->name, '3') || str_contains($cls->name, '4') || str_contains($cls->name, '5') => 10000,
+                default => 8000, // LKG, UKG
+            };
+
+            $structs = [
+                ['name' => 'Tuition & Academic Term Fee', 'term' => 'Term 1', 'amount' => $baseTuition, 'due_date' => '2026-06-15'],
+                ['name' => 'Laboratory & Computer Facility Fee', 'term' => 'Term 1', 'amount' => 3500, 'due_date' => '2026-06-30'],
+                ['name' => 'Tuition & Mid-Term Exam Fee', 'term' => 'Term 2', 'amount' => $baseTuition, 'due_date' => '2026-10-15'],
+                ['name' => 'Sports & Extracurricular Activities', 'term' => 'Term 2', 'amount' => 2500, 'due_date' => '2026-10-31'],
+                ['name' => 'Tuition & Annual Board Evaluation', 'term' => 'Term 3', 'amount' => $baseTuition, 'due_date' => '2027-01-15'],
+            ];
+
+            foreach ($structs as $st) {
+                $createdFeeStructures[] = \App\Models\FeeStructure::firstOrCreate(
+                    [
+                        'school_class_id' => $cls->id,
+                        'academic_year_id' => $academicYear->id,
+                        'name' => $st['name'],
+                        'term' => $st['term'],
+                    ],
+                    [
+                        'amount' => $st['amount'],
+                        'due_date' => $st['due_date'],
+                    ]
+                );
+            }
+        }
+
+        // 8b. Sample Concessions
+        $concessionStudents = Student::take(5)->get();
+        if ($concessionStudents->count() >= 3) {
+            \App\Models\FeeConcession::firstOrCreate(
+                [
+                    'student_id' => $concessionStudents[0]->id,
+                    'academic_year_id' => $academicYear->id,
+                    'title' => 'Sibling Concession (25%)',
+                ],
+                [
+                    'concession_type' => 'percentage',
+                    'amount' => 25,
+                    'reason' => 'Second sibling enrolled in Class 4',
+                    'approved_by' => $usersMap['chairman']->id,
+                ]
+            );
+
+            \App\Models\FeeConcession::firstOrCreate(
+                [
+                    'student_id' => $concessionStudents[1]->id,
+                    'academic_year_id' => $academicYear->id,
+                    'title' => 'Merit Scholarship',
+                ],
+                [
+                    'concession_type' => 'fixed',
+                    'amount' => 10000,
+                    'reason' => 'District topper in State Science Talent Search',
+                    'approved_by' => $usersMap['principal']->id,
+                ]
+            );
+        }
+
+        // 8c. Fee Allocations for Students
+        $allStudents = Student::all();
+        foreach ($allStudents as $idx => $ast) {
+            $classStructures = collect($createdFeeStructures)->where('school_class_id', $ast->school_class_id);
+            foreach ($classStructures as $cStruct) {
+                $hasConcession = ($idx === 0);
+                $concAmt = $hasConcession ? round($cStruct->amount * 0.25, 2) : 0;
+                $netAmt = max(0, $cStruct->amount - $concAmt);
+
+                $isPaid = ($cStruct->term === 'Term 1' && $idx < 220);
+                $isTerm2Paid = ($cStruct->term === 'Term 2' && $idx < 100);
+                $paidAmt = $isPaid ? $netAmt : ($isTerm2Paid ? $netAmt : 0);
+                $balDue = max(0, $netAmt - $paidAmt);
+
+                \App\Models\FeeAllocation::firstOrCreate(
+                    [
+                        'student_id' => $ast->id,
+                        'fee_structure_id' => $cStruct->id,
+                        'academic_year_id' => $academicYear->id,
+                    ],
+                    [
+                        'amount' => $cStruct->amount,
+                        'concession_amount' => $concAmt,
+                        'net_amount' => $netAmt,
+                        'paid_amount' => $paidAmt,
+                        'balance_due' => $balDue,
+                        'status' => $balDue <= 0.01 ? 'paid' : ($paidAmt > 0 ? 'partial' : 'pending'),
+                        'due_date' => $cStruct->due_date,
+                    ]
+                );
+            }
+        }
+
+        // 8d. Store Sales POS Invoices
+        $storeItemsList = StoreItem::all();
+        if ($storeItemsList->count() >= 4) {
+            $salesData = [
+                ['name' => 'Aarav Santhosh', 'type' => 'student', 'pm' => 'UPI', 'date' => $today, 'items' => [[0, 1], [6, 2], [9, 1]]],
+                ['name' => 'Kavitha R. (Parent)', 'type' => 'parent', 'pm' => 'Cash', 'date' => $today, 'items' => [[1, 2], [7, 4]]],
+                ['name' => 'S. Meenakshi (Teacher)', 'type' => 'staff', 'pm' => 'UPI', 'date' => Carbon::today()->subDays(1)->toDateString(), 'items' => [[6, 5], [9, 2]]],
+                ['name' => 'Vignesh P.', 'type' => 'student', 'pm' => 'Cash', 'date' => Carbon::today()->subDays(2)->toDateString(), 'items' => [[2, 1], [8, 1]]],
+                ['name' => 'M. Karthik (Parent)', 'type' => 'parent', 'pm' => 'Card', 'date' => Carbon::today()->subDays(3)->toDateString(), 'items' => [[0, 1], [3, 1], [4, 1]]],
+            ];
+
+            foreach ($salesData as $sIdx => $sd) {
+                $billNo = sprintf("SCH/26-27/STR-%05d", $sIdx + 1);
+                $subtotal = 0;
+                $cost = 0;
+                $profit = 0;
+                $saleRows = [];
+
+                foreach ($sd['items'] as $itemPair) {
+                    $item = $storeItemsList[$itemPair[0]] ?? $storeItemsList->first();
+                    $qty = $itemPair[1];
+                    $rowSubtotal = (float)$item->selling_price * $qty;
+                    $rowCost = (float)$item->purchase_price * $qty;
+                    $rowProfit = $rowSubtotal - $rowCost;
+
+                    $subtotal += $rowSubtotal;
+                    $cost += $rowCost;
+                    $profit += $rowProfit;
+
+                    $saleRows[] = [
+                        'store_item_id' => $item->id,
+                        'quantity' => $qty,
+                        'cost_price' => $item->purchase_price,
+                        'unit_price' => $item->selling_price,
+                        'subtotal' => $rowSubtotal,
+                        'profit' => $rowProfit,
+                    ];
+                }
+
+                $sale = \App\Models\StoreSale::firstOrCreate(
+                    ['bill_no' => $billNo],
+                    [
+                        'customer_name' => $sd['name'],
+                        'customer_type' => $sd['type'],
+                        'subtotal' => $subtotal,
+                        'discount' => 0,
+                        'total_amount' => $subtotal,
+                        'cost_amount' => $cost,
+                        'profit_amount' => $profit,
+                        'payment_method' => $sd['pm'],
+                        'sale_date' => $sd['date'],
+                        'cashier_id' => $usersMap['accountant']->id,
+                        'notes' => 'Uniforms, notebooks & stationery purchase',
+                    ]
+                );
+
+                foreach ($saleRows as $sr) {
+                    \App\Models\StoreSaleItem::firstOrCreate(
+                        [
+                            'store_sale_id' => $sale->id,
+                            'store_item_id' => $sr['store_item_id'],
+                        ],
+                        $sr
+                    );
+                }
+            }
         }
 
         // 9. Ledger Expenses This Month

@@ -124,6 +124,38 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 Route::middleware(['auth', 'role:chairman,principal,accountant'])->prefix('accounts')->name('accounts.')->group(function () {
     Route::get('/dashboard', [AccountsDashboardController::class, 'index'])->name('dashboard');
     Route::get('/metrics/live', [AccountsDashboardController::class, 'liveBillingMetrics'])->name('metrics.live');
+
+    // Fee Structures & Class Installments
+    Route::get('/fees', [\App\Http\Controllers\Accounts\FeeStructureController::class, 'index'])->name('fees.index');
+    Route::post('/fees', [\App\Http\Controllers\Accounts\FeeStructureController::class, 'store'])->name('fees.store');
+
+    // Cashier Collection Desk & Dues
+    Route::get('/fees/collect', [\App\Http\Controllers\Accounts\FeeCollectionController::class, 'collect'])->name('fees.collect');
+    Route::post('/fees/collect', [\App\Http\Controllers\Accounts\FeeCollectionController::class, 'store'])->name('fees.collect.store');
+    Route::get('/fees/receipts/{receipt}/pdf', [\App\Http\Controllers\Accounts\FeeCollectionController::class, 'downloadReceipt'])->name('fees.receipt');
+    Route::get('/fees/student/{student}/dues-json', [\App\Http\Controllers\Accounts\FeeCollectionController::class, 'studentDuesJson'])->name('fees.student-dues');
+
+    // Concessions & Scholarships
+    Route::get('/fees/concessions', [\App\Http\Controllers\Accounts\FeeConcessionController::class, 'index'])->name('fees.concessions');
+    Route::post('/fees/concessions', [\App\Http\Controllers\Accounts\FeeConcessionController::class, 'store'])->name('fees.concessions.store');
+
+    // School Store POS & Inventory
+    Route::get('/store', [\App\Http\Controllers\Accounts\StoreController::class, 'index'])->name('store.index');
+    Route::post('/store/items', [\App\Http\Controllers\Accounts\StoreController::class, 'storeItem'])->name('store.items.store');
+    Route::post('/store/items/{item}/restock', [\App\Http\Controllers\Accounts\StoreController::class, 'restock'])->name('store.items.restock');
+    Route::get('/store/pos', [\App\Http\Controllers\Accounts\StoreController::class, 'pos'])->name('store.pos');
+    Route::post('/store/pos/checkout', [\App\Http\Controllers\Accounts\StoreController::class, 'processSale'])->name('store.pos.checkout');
+    Route::get('/store/sales/{sale}/pdf', [\App\Http\Controllers\Accounts\StoreController::class, 'downloadReceipt'])->name('store.receipt');
+
+    // Double-Entry Expense Ledger
+    Route::get('/expenses', [\App\Http\Controllers\Accounts\ExpenseController::class, 'index'])->name('expenses.index');
+    Route::post('/expenses', [\App\Http\Controllers\Accounts\ExpenseController::class, 'store'])->name('expenses.store');
+
+    // Reports, Day-Book & Audits
+    Route::get('/reports/transactions', [\App\Http\Controllers\Accounts\ReportController::class, 'transactions'])->name('reports.transactions');
+    Route::get('/reports/transactions/export', [\App\Http\Controllers\Accounts\ReportController::class, 'exportCsv'])->name('reports.transactions.export');
+    Route::get('/reports/daybook', [\App\Http\Controllers\Accounts\ReportController::class, 'daybook'])->name('reports.daybook');
+    Route::get('/reports/monthly', [\App\Http\Controllers\Accounts\ReportController::class, 'monthly'])->name('reports.monthly');
 });
 
 /*

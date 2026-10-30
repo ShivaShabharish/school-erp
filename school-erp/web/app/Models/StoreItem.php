@@ -33,4 +33,9 @@ class StoreItem extends Model
     {
         return $this->stock_quantity <= $this->alert_threshold;
     }
+
+    public function saleItems(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(StoreSaleItem::class);
+    }
 }

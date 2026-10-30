@@ -123,3 +123,42 @@
   - `GET /admin/academics/homework` (Homework & Coursework Board) &rarr; HTTP 200 VERIFIED
   - `GET /admin/academics/student-attendance` (Daily Section Roll-Call Register) &rarr; HTTP 200 VERIFIED
 
+---
+
+### Phase 6 (P6) Accounts & Billing
+- **Date**: 2026-10-30
+- **Database Migration & Seeding**:
+  - `php artisan migrate:fresh --seed` &rarr; **PASSED**
+  - Created tables: `fee_structures`, `fee_concessions`, `fee_allocations`, `fee_receipt_items`, `store_sales`, `store_sale_items`.
+  - Extended tables: `fee_receipts` (added `academic_year_id`, `concession_applied`, `transaction_reference`).
+  - Seeded: Class-wise 3-term fee structures for classes LKG to 12th, student fee dues allocations, institutional concessions (sibling 25%, merit ₹10,000), sequential fee receipts (`SCH/2026-27/REC-XXXXX`), retail store catalog with 10 articles (uniforms, textbooks, notebooks, bags, geometry boxes), POS store bills (`SCH/2026-27/STR-XXXXX`), and categorized expense vouchers.
+- **Automated Test Suite**:
+  - `php artisan test` &rarr; **51 passed (217 assertions), 0 failures** (Duration: 4.87s) &rarr; **PASSED**
+  - `AccountsBillingTest > accountant can view accounts dashboard with all metrics` &rarr; PASS
+  - `AccountsBillingTest > fee structure creation and auto allocation to class` &rarr; PASS
+  - `AccountsBillingTest > cashier fee collection creates receipt and allocates dues` &rarr; PASS (atomic DB transaction, sequential receipt numbering, dues balance deduction)
+  - `AccountsBillingTest > fee receipt pdf download` &rarr; PASS (Content-Type `application/pdf`, two-part Student Copy + Office Counterfoil)
+  - `AccountsBillingTest > student concession application rebalances dues` &rarr; PASS (immediate net payable recalculation)
+  - `AccountsBillingTest > store inventory management and restock` &rarr; PASS
+  - `AccountsBillingTest > store pos sale decrements stock and computes profit` &rarr; PASS (atomic inventory reduction with profit calculation)
+  - `AccountsBillingTest > store receipt pdf download` &rarr; PASS (Content-Type `application/pdf`)
+  - `AccountsBillingTest > expense voucher creation and ledger` &rarr; PASS
+  - `AccountsBillingTest > daybook and monthly report calculations` &rarr; PASS (daily cash journal, monthly income vs expenditure surplus audit)
+  - `AccountsBillingTest > transactions csv export` &rarr; PASS (Content-Type `text/csv; charset=UTF-8` with UTF-8 BOM)
+  - `AccountsBillingTest > teacher and parent cannot access accounts portal` &rarr; PASS (HTTP 403 Forbidden verified)
+- **Frontend Asset Compilation**:
+  - `npm run build` &rarr; **0 errors, 0 warnings** (Vite built in 5.29s) &rarr; **PASSED**
+- **Live Workflow Click-Through**:
+  - `GET /accounts/dashboard` (Dedicated Finance Division Dashboard) &rarr; HTTP 200 VERIFIED
+  - `GET /accounts/metrics/live` (10s Live Polling Endpoint) &rarr; HTTP 200 JSON VERIFIED
+  - `GET /accounts/fees` (Class-Wise 3-Term Fee Structures) &rarr; HTTP 200 VERIFIED
+  - `GET /accounts/fees/collect` (Cashier Collection Counter) &rarr; HTTP 200 VERIFIED
+  - `GET /accounts/fees/concessions` (Concessions & Scholarships Register) &rarr; HTTP 200 VERIFIED
+  - `GET /accounts/store` (School Store Inventory Catalog) &rarr; HTTP 200 VERIFIED
+  - `GET /accounts/store/pos` (Store POS Cash Register Counter) &rarr; HTTP 200 VERIFIED
+  - `GET /accounts/expenses` (Double-Entry Expense Ledger) &rarr; HTTP 200 VERIFIED
+  - `GET /accounts/reports/transactions` (Unified Audit Ledger & CSV) &rarr; HTTP 200 VERIFIED
+  - `GET /accounts/reports/daybook` (Daily Cash Day-Book) &rarr; HTTP 200 VERIFIED
+  - `GET /accounts/reports/monthly` (Monthly Statement) &rarr; HTTP 200 VERIFIED
+
+

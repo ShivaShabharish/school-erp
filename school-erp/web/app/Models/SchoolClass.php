@@ -19,4 +19,14 @@ class SchoolClass extends Model
     {
         return $this->hasMany(Section::class, 'school_class_id')->orderBy('name');
     }
+
+    public function students(): HasMany
+    {
+        return $this->hasMany(Student::class, 'school_class_id');
+    }
+
+    public function feeStructures(): HasMany
+    {
+        return $this->hasMany(FeeStructure::class);
+    }
 }

@@ -1,5 +1,7 @@
 import React from 'react';
+import { View, Platform } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   Home,
   Calendar,
@@ -29,6 +31,9 @@ export type BottomTabParamList = {
 const Tab = createBottomTabNavigator<BottomTabParamList>();
 
 export const TabNavigator: React.FC = () => {
+  const insets = useSafeAreaInsets();
+  const bottomInset = insets.bottom > 0 ? insets.bottom : (Platform.OS === 'android' ? 14 : 8);
+
   return (
     <Tab.Navigator
       screenOptions={{
@@ -41,18 +46,24 @@ export const TabNavigator: React.FC = () => {
           fontSize: 17,
         },
         tabBarActiveTintColor: Colors.primary,
-        tabBarInactiveTintColor: Colors.textMuted,
+        tabBarInactiveTintColor: '#475569', // High-contrast Slate-600
         tabBarStyle: {
           backgroundColor: '#ffffff',
-          borderTopColor: Colors.border,
-          borderTopWidth: 1,
-          height: 64,
-          paddingBottom: 8,
-          paddingTop: 6,
+          borderTopColor: '#e2e8f0',
+          borderTopWidth: 1.5,
+          height: 58 + bottomInset,
+          paddingBottom: bottomInset,
+          paddingTop: 8,
+          elevation: 12,
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: -2 },
+          shadowOpacity: 0.08,
+          shadowRadius: 6,
         },
         tabBarLabelStyle: {
           fontSize: 11,
-          fontWeight: '600',
+          fontWeight: '700',
+          marginTop: 2,
         },
       }}
     >
@@ -62,7 +73,9 @@ export const TabNavigator: React.FC = () => {
         options={{
           headerTitle: 'Test Subject HSS Portal',
           tabBarLabel: 'Home',
-          tabBarIcon: ({ color, size }) => <Home size={size} color={color} />,
+          tabBarIcon: ({ color, focused }) => (
+            <Home size={22} color={color} strokeWidth={focused ? 2.6 : 2} />
+          ),
         }}
       />
 
@@ -72,7 +85,9 @@ export const TabNavigator: React.FC = () => {
         options={{
           headerTitle: 'Class Timetable',
           tabBarLabel: 'Timetable',
-          tabBarIcon: ({ color, size }) => <Calendar size={size} color={color} />,
+          tabBarIcon: ({ color, focused }) => (
+            <Calendar size={22} color={color} strokeWidth={focused ? 2.6 : 2} />
+          ),
         }}
       />
 
@@ -82,7 +97,9 @@ export const TabNavigator: React.FC = () => {
         options={{
           headerTitle: 'Turnout & Roll-Call',
           tabBarLabel: 'Attendance',
-          tabBarIcon: ({ color, size }) => <CheckCircle2 size={size} color={color} />,
+          tabBarIcon: ({ color, focused }) => (
+            <CheckCircle2 size={22} color={color} strokeWidth={focused ? 2.6 : 2} />
+          ),
         }}
       />
 
@@ -92,7 +109,9 @@ export const TabNavigator: React.FC = () => {
         options={{
           headerTitle: 'Fee Installments & Receipts',
           tabBarLabel: 'Fees',
-          tabBarIcon: ({ color, size }) => <CreditCard size={size} color={color} />,
+          tabBarIcon: ({ color, focused }) => (
+            <CreditCard size={22} color={color} strokeWidth={focused ? 2.6 : 2} />
+          ),
         }}
       />
 
@@ -102,7 +121,9 @@ export const TabNavigator: React.FC = () => {
         options={{
           headerTitle: 'Campus Circulars',
           tabBarLabel: 'Notices',
-          tabBarIcon: ({ color, size }) => <Bell size={size} color={color} />,
+          tabBarIcon: ({ color, focused }) => (
+            <Bell size={22} color={color} strokeWidth={focused ? 2.6 : 2} />
+          ),
         }}
       />
 
@@ -112,7 +133,9 @@ export const TabNavigator: React.FC = () => {
         options={{
           headerTitle: 'Digital Student ID',
           tabBarLabel: 'ID Card',
-          tabBarIcon: ({ color, size }) => <User size={size} color={color} />,
+          tabBarIcon: ({ color, focused }) => (
+            <User size={22} color={color} strokeWidth={focused ? 2.6 : 2} />
+          ),
         }}
       />
     </Tab.Navigator>

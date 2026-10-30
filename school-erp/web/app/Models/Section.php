@@ -22,6 +22,11 @@ class Section extends Model
         return $this->belongsTo(SchoolClass::class, 'school_class_id');
     }
 
+    public function students(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Student::class, 'section_id');
+    }
+
     public function getFullNameAttribute(): string
     {
         return "{$this->schoolClass?->name} - {$this->name}";

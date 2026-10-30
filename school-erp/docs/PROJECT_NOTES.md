@@ -77,7 +77,7 @@
 ## Phase Checklist
 - [x] **P1 Foundation**: Environment verified, database connected, Laravel 11 scaffolded, auth, roles, layout shell, design system, /health endpoint, seeders, scripts. Completed & fully tested.
 - [x] **P2 Admin Dashboard**: Live tiles (students present, staff present, staff on leave, today's collection, month margin), dynamic class-wise strength/turnout table (Classes LKG-12), 7-day attendance trend chart, operational alerts (late staff, fee defaulters, low stock), 10s auto-refresh polling endpoint. Completed & fully tested.
-- [ ] **P3 Students & Admissions**: Enquiry to admission workflow, student 360 profile, promotion engine, CSV import.
+- [x] **P3 Students & Admissions**: Enquiry to admission pipeline with conversion modal, comprehensive 360° student profile with document verification & fee receipts history, batch class-to-class promotion wizard with audit logs, CSV import/export, and class/section rosters. Completed & fully tested.
 - [ ] **P4 Staff & Attendance**: Biometric punch API, simulator, live attendance, leave approvals, payroll payslip PDF.
 - [ ] **P5 Academics**: Timetable clash detection, substitution recommendation, CCE exams, marks, report card PDF.
 - [ ] **P6 Accounts & Billing**: Fee structure, installments, concessions, PDF receipts, expense ledger, store inventory POS.

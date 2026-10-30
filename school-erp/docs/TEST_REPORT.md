@@ -33,3 +33,31 @@
   - Operational Alerts (Late staff, Fee defaulters, Store low stock) &rarr; VERIFIED
   - Live polling endpoint `/admin/metrics/live` (10s auto-refresh) &rarr; VERIFIED
   - Role isolation: Non-admin roles properly restricted &rarr; VERIFIED
+
+---
+
+### Phase 3 (P3) Students & Admissions
+- **Date**: 2026-10-30
+- **Database Migration & Seeding**:
+  - `php artisan migrate:fresh --seed` &rarr; **PASSED**
+  - Added tables: `admission_enquiries`, `student_promotions`, extended `students` fields (documents, emergency contact, previous school).
+- **Automated Test Suite**:
+  - `php artisan test` &rarr; **23 passed (99 assertions), 0 failures** (Duration: 2.11s) &rarr; **PASSED**
+  - `StudentAdmissionTest > admin can view student directory` &rarr; PASS
+  - `StudentAdmissionTest > admin can view new admission form` &rarr; PASS
+  - `StudentAdmissionTest > admin can register new student admission` &rarr; PASS (verified parent user creation, DB transaction, and audit logging)
+  - `StudentAdmissionTest > admin can view 360 student profile` &rarr; PASS (verified biodata, attendance %, fee receipts, document verification, progression)
+  - `StudentAdmissionTest > admin can export students csv` &rarr; PASS (verified streamed CSV response with UTF-8 header)
+  - `StudentAdmissionTest > admin can manage prospective enquiries and convert` &rarr; PASS (verified pipeline statuses, enquiry registration, and modal conversion into student)
+  - `StudentAdmissionTest > admin can execute batch promotion` &rarr; PASS (verified student class/section updates and audit promotion history)
+  - `StudentAdmissionTest > classes overview and section roster` &rarr; PASS (verified 28 section cards, student roster, room assignments, and today's attendance)
+- **Frontend Asset Compilation**:
+  - `npm run build` &rarr; **0 errors, 0 warnings** (Vite built in 6.89s) &rarr; **PASSED**
+- **Live Workflow Click-Through**:
+  - `GET /admin/students` (Student Directory & Filters) &rarr; HTTP 200 VERIFIED
+  - `GET /admin/students/create` (Admission Registration Form) &rarr; HTTP 200 VERIFIED
+  - `GET /admin/students/1` (360° Profile Dossier) &rarr; HTTP 200 VERIFIED
+  - `GET /admin/admissions/enquiries` (Prospective Pipeline & Modal) &rarr; HTTP 200 VERIFIED
+  - `GET /admin/students/promotion` (Batch Promotion Wizard) &rarr; HTTP 200 VERIFIED
+  - `GET /admin/classes` (Classes Overview Grid) &rarr; HTTP 200 VERIFIED
+  - `GET /admin/classes/1/sections/1` (Section Roster) &rarr; HTTP 200 VERIFIED

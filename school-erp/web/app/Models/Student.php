@@ -26,6 +26,19 @@ class Student extends Model
         'status',
         'blood_group',
         'emergency_contact',
+        'address',
+        'city',
+        'state',
+        'pincode',
+        'father_name',
+        'mother_name',
+        'father_occupation',
+        'mother_occupation',
+        'parent_phone',
+        'parent_email',
+        'previous_school',
+        'tc_number',
+        'documents',
     ];
 
     protected function casts(): array
@@ -33,6 +46,7 @@ class Student extends Model
         return [
             'dob' => 'date',
             'admission_date' => 'date',
+            'documents' => 'array',
         ];
     }
 
@@ -64,5 +78,10 @@ class Student extends Model
     public function feeReceipts(): HasMany
     {
         return $this->hasMany(FeeReceipt::class);
+    }
+
+    public function promotions(): HasMany
+    {
+        return $this->hasMany(StudentPromotion::class);
     }
 }

@@ -60,6 +60,25 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
     Route::get('/metrics/live', [AdminDashboardController::class, 'liveMetrics'])->name('metrics.live');
+
+    // Phase 3: Students & Admissions Routes
+    Route::get('/students/export-csv', [\App\Http\Controllers\Students\StudentController::class, 'exportCsv'])->name('students.export-csv');
+    Route::get('/students/sample-csv', [\App\Http\Controllers\Students\StudentController::class, 'downloadSampleCsv'])->name('students.sample-csv');
+    Route::post('/students/import-csv', [\App\Http\Controllers\Students\StudentController::class, 'importCsv'])->name('students.import-csv');
+    Route::get('/students/promotion', [\App\Http\Controllers\Students\PromotionController::class, 'index'])->name('students.promotion');
+    Route::post('/students/promotion', [\App\Http\Controllers\Students\PromotionController::class, 'promote'])->name('students.promote');
+    Route::post('/students/promotion/execute', [\App\Http\Controllers\Students\PromotionController::class, 'promote'])->name('students.promotion.promote');
+
+    Route::resource('students', \App\Http\Controllers\Students\StudentController::class);
+
+    Route::get('/admissions/enquiries', [\App\Http\Controllers\Students\AdmissionController::class, 'enquiries'])->name('admissions.enquiries');
+    Route::post('/admissions/enquiries', [\App\Http\Controllers\Students\AdmissionController::class, 'storeEnquiry'])->name('admissions.store-enquiry');
+    Route::post('/admissions/enquiry/store', [\App\Http\Controllers\Students\AdmissionController::class, 'storeEnquiry'])->name('admissions.enquiry.store');
+    Route::post('/admissions/enquiries/{enquiry}/convert', [\App\Http\Controllers\Students\AdmissionController::class, 'convertEnquiry'])->name('admissions.convert-enquiry');
+    Route::post('/admissions/enquiry/{enquiry}/convert', [\App\Http\Controllers\Students\AdmissionController::class, 'convertEnquiry'])->name('admissions.enquiry.convert');
+
+    Route::get('/classes', [\App\Http\Controllers\Students\ClassDetailController::class, 'index'])->name('classes.index');
+    Route::get('/classes/{class}/sections/{section}', [\App\Http\Controllers\Students\ClassDetailController::class, 'show'])->name('classes.show');
 });
 
 /*

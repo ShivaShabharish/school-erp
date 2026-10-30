@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import { Colors } from '../../theme/colors';
 import { useAuth } from '../../context/AuthContext';
-import { getApiBaseUrl, setApiBaseUrl } from '../../config/env';
+import { getApiBaseUrl, setApiBaseUrl, WIFI_API_BASE_URL, CLOUDFLARE_API_BASE_URL } from '../../config/env';
 
 export const LoginScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
   const { login } = useAuth();
@@ -35,7 +35,6 @@ export const LoginScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
 
     try {
       await login(email.trim(), password);
-      navigation.replace('MainTabs');
     } catch (err: any) {
       console.log('Login failed', err);
       if (err.response?.status === 503) {
@@ -165,13 +164,31 @@ export const LoginScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
 
           {showConfig ? (
             <View style={styles.configBox}>
-              <Text style={styles.configLabel}>API Base URL:</Text>
+              <Text style={styles.configLabel}>Active API Base URL:</Text>
               <TextInput
                 style={styles.configInput}
                 value={customApiUrl}
                 onChangeText={setCustomApiUrl}
                 autoCapitalize="none"
               />
+              <View style={{ flexDirection: 'row', gap: 6, marginVertical: 8 }}>
+                <TouchableOpacity
+                  style={[styles.demoPill, { flex: 1, backgroundColor: Colors.primaryTint }]}
+                  onPress={() => setCustomApiUrl(WIFI_API_BASE_URL)}
+                >
+                  <Text style={[styles.demoPillText, { color: Colors.primary, fontSize: 11 }]}>
+                    📶 Local Wi-Fi
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.demoPill, { flex: 1, backgroundColor: Colors.accentTint }]}
+                  onPress={() => setCustomApiUrl(CLOUDFLARE_API_BASE_URL)}
+                >
+                  <Text style={[styles.demoPillText, { color: Colors.accent, fontSize: 11 }]}>
+                    🌐 Cloudflare
+                  </Text>
+                </TouchableOpacity>
+              </View>
               <TouchableOpacity style={styles.configSaveBtn} onPress={saveConfig}>
                 <Text style={styles.configSaveBtnText}>Save Endpoint</Text>
               </TouchableOpacity>

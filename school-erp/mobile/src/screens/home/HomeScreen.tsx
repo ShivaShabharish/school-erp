@@ -146,7 +146,7 @@ export const HomeScreen: React.FC<{ navigation?: any }> = ({ navigation }) => {
       <View style={styles.shortcutsRow}>
         <TouchableOpacity
           style={styles.shortcutBtn}
-          onPress={() => navigation.navigate('Academics', { screen: 'Timetable' })}
+          onPress={() => navigation.navigate('Timetable')}
         >
           <View style={[styles.shortcutIconBg, { backgroundColor: '#ecfdf5' }]}>
             <Text style={styles.shortcutEmoji}>📅</Text>
@@ -156,7 +156,7 @@ export const HomeScreen: React.FC<{ navigation?: any }> = ({ navigation }) => {
 
         <TouchableOpacity
           style={styles.shortcutBtn}
-          onPress={() => navigation.navigate('Academics', { screen: 'Homework' })}
+          onPress={() => navigation.navigate('Homework')}
         >
           <View style={[styles.shortcutIconBg, { backgroundColor: '#eff6ff' }]}>
             <Text style={styles.shortcutEmoji}>📝</Text>

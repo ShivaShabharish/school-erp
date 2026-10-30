@@ -93,3 +93,33 @@
   - `GET /admin/staff/payroll` (Monthly Salary Sheet) &rarr; HTTP 200 VERIFIED
   - `GET /admin/staff/payroll/1/payslip` (DomPDF Payslip Download) &rarr; HTTP 200 & Content-Type `application/pdf` VERIFIED
   - `POST /api/v1/biometric/punch` (REST API Biometric Machine Interface) &rarr; HTTP 200 JSON VERIFIED
+
+---
+
+### Phase 5 (P5) Academics & Timetables
+- **Date**: 2026-10-30
+- **Database Migration & Seeding**:
+  - `php artisan migrate:fresh --seed` &rarr; **PASSED**
+  - Created tables: `subjects`, `class_subjects`, `timetables`, `substitutions`, `exams`, `exam_schedules`, `marks`, `homework`.
+  - Seeded: Core subjects (Tamil, English, Mathematics, Science, Social Science, Physics, Chemistry, Biology, Computer Science, Accountancy), 6-day x 8-period timetable matrix for Class 10 with room assignments, Quarterly Examination 2026 schedules, realistic Tamil Nadu CCE marks roster for students, and sample homework coursework.
+- **Automated Test Suite**:
+  - `php artisan test` &rarr; **39 passed (173 assertions), 0 failures** (Duration: 2.94s) &rarr; **PASSED**
+  - `AcademicsTest > admin can view timetables grid` &rarr; PASS (weekly 6-day x 8-period matrix, slot badges, teacher/room detail)
+  - `AcademicsTest > timetable slot allocation and clash detection` &rarr; PASS (conflict engine blocks overlapping teacher/room periods across sections)
+  - `AcademicsTest > substitution engine view and assignment` &rarr; PASS (recommends qualified free teachers based on daily attendance)
+  - `AcademicsTest > admin can view exams list` &rarr; PASS (Quarterly/Half-Yearly/Annual CCE exams and schedule master)
+  - `AcademicsTest > marks entry and grading` &rarr; PASS (tabular marks entry, auto-calculated TN CCE 8-point grades A1-E & grade points 0-10)
+  - `AcademicsTest > cce report card pdf download` &rarr; PASS (clean printable official Tamil Nadu State Board CCE Progress Report Card via DomPDF)
+  - `AcademicsTest > homework board view and assignment` &rarr; PASS (class & section coursework assignments with due dates and teacher attribution)
+  - `AcademicsTest > student rollcall attendance` &rarr; PASS (daily section roll-call register with quick bulk-present toggles)
+- **Frontend Asset Compilation**:
+  - `npm run build` &rarr; **0 errors, 0 warnings** (Vite built in 6.13s) &rarr; **PASSED**
+- **Live Workflow Click-Through**:
+  - `GET /admin/academics/timetables` (Class & Teacher Timetable Master Grid) &rarr; HTTP 200 VERIFIED
+  - `GET /admin/academics/substitutions` (Faculty Substitution Recommendation Engine) &rarr; HTTP 200 VERIFIED
+  - `GET /admin/academics/exams` (Tamil Nadu CCE Examination Schedules) &rarr; HTTP 200 VERIFIED
+  - `GET /admin/academics/exams/schedules/1/marks` (Tabular Marks Entry Sheet) &rarr; HTTP 200 VERIFIED
+  - `GET /admin/academics/exams/1/students/1/report-card` (Official CCE Progress Report Card PDF) &rarr; HTTP 200 & Content-Type `application/pdf` VERIFIED
+  - `GET /admin/academics/homework` (Homework & Coursework Board) &rarr; HTTP 200 VERIFIED
+  - `GET /admin/academics/student-attendance` (Daily Section Roll-Call Register) &rarr; HTTP 200 VERIFIED
+

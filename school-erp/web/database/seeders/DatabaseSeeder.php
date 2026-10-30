@@ -430,7 +430,158 @@ class DatabaseSeeder extends Seeder
             );
         }
 
-        // 10. Default System Settings
+        // 10. Academics: Subjects, Timetables, Exams, Marks & Homework
+        $subjectsList = [
+            ['name' => 'English Language & Literature', 'code' => 'ENG', 'type' => 'theory', 'department' => 'English Language'],
+            ['name' => 'Tamil Language (General)', 'code' => 'TAM', 'type' => 'theory', 'department' => 'Tamil Language'],
+            ['name' => 'Mathematics', 'code' => 'MAT', 'type' => 'theory', 'department' => 'Mathematics'],
+            ['name' => 'General Science', 'code' => 'SCI', 'type' => 'both', 'department' => 'Science'],
+            ['name' => 'Social Science & Civics', 'code' => 'SOC', 'type' => 'theory', 'department' => 'Social Studies'],
+            ['name' => 'Physics', 'code' => 'PHY', 'type' => 'both', 'department' => 'Science'],
+            ['name' => 'Chemistry', 'code' => 'CHE', 'type' => 'both', 'department' => 'Science'],
+            ['name' => 'Biology & Botany', 'code' => 'BIO', 'type' => 'both', 'department' => 'Science'],
+            ['name' => 'Computer Science & Python', 'code' => 'CSC', 'type' => 'both', 'department' => 'Computer Science'],
+        ];
+
+        $createdSubjects = [];
+        foreach ($subjectsList as $s) {
+            $createdSubjects[$s['code']] = \App\Models\Subject::firstOrCreate(['code' => $s['code']], $s);
+        }
+
+        // Timetable Slots for Class 10 (Section A & B)
+        $class10 = \App\Models\SchoolClass::where('name', 'like', '%10%')->first() ?? $allClasses->first();
+        $sections10 = \App\Models\Section::where('school_class_id', $class10->id)->get();
+
+        $days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+        $subjectCodes = ['ENG', 'TAM', 'MAT', 'SCI', 'SOC', 'MAT', 'CSC', 'ENG'];
+
+        $teachingStaff = \App\Models\Staff::where('department', 'Teaching')->orWhere('department', 'Mathematics')->orWhere('department', 'Science')->get();
+        if ($teachingStaff->isEmpty()) {
+            $teachingStaff = \App\Models\Staff::all();
+        }
+
+        foreach ($sections10 as $sIdx => $sec) {
+            foreach ($days as $dIdx => $day) {
+                for ($p = 1; $p <= 8; $p++) {
+                    $code = $subjectCodes[($p - 1 + $dIdx) % count($subjectCodes)];
+                    $subj = $createdSubjects[$code] ?? $createdSubjects['ENG'];
+                    // Distribute teachers so there is no teacher clash between Section A and B
+                    $tIdx = ($p + $dIdx + ($sIdx * 3)) % $teachingStaff->count();
+                    $assignedTeacher = $teachingStaff[$tIdx];
+
+                    \App\Models\Timetable::firstOrCreate(
+                        [
+                            'school_class_id' => $class10->id,
+                            'section_id' => $sec->id,
+                            'day_of_week' => $day,
+                            'period_number' => $p,
+                        ],
+                        [
+                            'subject_id' => $subj->id,
+                            'staff_id' => $assignedTeacher->id,
+                            'start_time' => '09:00:00',
+                            'end_time' => '09:45:00',
+                            'room_no' => 'Room ' . ($sIdx === 0 ? '201' : '202'),
+                        ]
+                    );
+                }
+            }
+        }
+
+        // Exams & CCE Schedules
+        $quarterlyExam = \App\Models\Exam::firstOrCreate(
+            ['name' => 'Quarterly Examination 2026-2027'],
+            [
+                'exam_type' => 'quarterly',
+                'academic_year_id' => $academicYear->id,
+                'start_date' => '2026-09-15',
+                'end_date' => '2026-09-25',
+                'status' => 'completed',
+            ]
+        );
+
+        $examSubjects = ['ENG', 'TAM', 'MAT', 'SCI', 'SOC'];
+        $createdSchedules = [];
+        foreach ($examSubjects as $eIdx => $eCode) {
+            if (isset($createdSubjects[$eCode])) {
+                $sch = \App\Models\ExamSchedule::firstOrCreate(
+                    [
+                        'exam_id' => $quarterlyExam->id,
+                        'school_class_id' => $class10->id,
+                        'subject_id' => $createdSubjects[$eCode]->id,
+                    ],
+                    [
+                        'exam_date' => \Carbon\Carbon::parse('2026-09-15')->addDays($eIdx * 2)->toDateString(),
+                        'start_time' => '09:30:00',
+                        'end_time' => '12:30:00',
+                        'max_marks' => 100,
+                        'pass_marks' => 35,
+                    ]
+                );
+                $createdSchedules[] = $sch;
+            }
+        }
+
+        // Seed Marks for Class 10 Students
+        $reportService = app(\App\Services\ReportService::class);
+        $class10Students = \App\Models\Student::where('school_class_id', $class10->id)->get();
+        foreach ($class10Students as $st) {
+            foreach ($createdSchedules as $sch) {
+                $obtained = rand(65, 96);
+                $gradeInfo = $reportService->calculateGrade($obtained, 100);
+
+                \App\Models\Mark::firstOrCreate(
+                    [
+                        'exam_schedule_id' => $sch->id,
+                        'student_id' => $st->id,
+                    ],
+                    [
+                        'marks_obtained' => $obtained,
+                        'grade' => $gradeInfo['grade'],
+                        'grade_point' => $gradeInfo['point'],
+                        'is_absent' => false,
+                        'remarks' => $gradeInfo['remark'],
+                    ]
+                );
+            }
+        }
+
+        // Seed Homework
+        if ($sections10->isNotEmpty() && $teachingStaff->isNotEmpty()) {
+            \App\Models\Homework::firstOrCreate(
+                [
+                    'school_class_id' => $class10->id,
+                    'section_id' => $sections10->first()->id,
+                    'title' => 'Quadratic Equations Exercise 3.2',
+                ],
+                [
+                    'subject_id' => $createdSubjects['MAT']->id,
+                    'staff_id' => $teachingStaff->first()->id,
+                    'description' => 'Solve problems 1 to 15 from Chapter 3 on Quadratic Factorisation in State Board textbook.',
+                    'assigned_date' => $today,
+                    'due_date' => \Carbon\Carbon::parse($today)->addDays(2)->toDateString(),
+                    'status' => 'active',
+                ]
+            );
+
+            \App\Models\Homework::firstOrCreate(
+                [
+                    'school_class_id' => $class10->id,
+                    'section_id' => $sections10->first()->id,
+                    'title' => 'Thirukkural Explanation Essays (Arathupal)',
+                ],
+                [
+                    'subject_id' => $createdSubjects['TAM']->id,
+                    'staff_id' => $teachingStaff->first()->id,
+                    'description' => 'Write a 2-page essay analyzing the moral virtues in Thirukkural chapters 1 through 5.',
+                    'assigned_date' => $today,
+                    'due_date' => \Carbon\Carbon::parse($today)->addDays(3)->toDateString(),
+                    'status' => 'active',
+                ]
+            );
+        }
+
+        // 11. Default System Settings
         $settings = [
             'school_name' => 'Test Subject Higher Secondary School',
             'school_board' => 'Tamil Nadu State Board',

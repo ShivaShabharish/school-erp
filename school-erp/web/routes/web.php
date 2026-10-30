@@ -94,6 +94,25 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/staff/payroll/{payroll}/payslip', [\App\Http\Controllers\Staff\PayrollController::class, 'downloadPayslip'])->name('staff.payroll.payslip');
 
     Route::resource('staff', \App\Http\Controllers\Staff\StaffController::class);
+
+    // Phase 5: Academics & Timetables
+    Route::get('/academics/timetables', [\App\Http\Controllers\Academics\TimetableController::class, 'index'])->name('academics.timetables.index');
+    Route::post('/academics/timetables', [\App\Http\Controllers\Academics\TimetableController::class, 'store'])->name('academics.timetables.store');
+
+    Route::get('/academics/substitutions', [\App\Http\Controllers\Academics\SubstitutionController::class, 'index'])->name('academics.substitutions.index');
+    Route::post('/academics/substitutions', [\App\Http\Controllers\Academics\SubstitutionController::class, 'assign'])->name('academics.substitutions.assign');
+
+    Route::get('/academics/exams', [\App\Http\Controllers\Academics\ExamController::class, 'index'])->name('academics.exams.index');
+    Route::post('/academics/exams', [\App\Http\Controllers\Academics\ExamController::class, 'store'])->name('academics.exams.store');
+    Route::get('/academics/exams/{exam}/students/{student}/report-card', [\App\Http\Controllers\Academics\ExamController::class, 'reportCardPdf'])->name('academics.exams.report-card');
+    Route::get('/academics/exams/schedules/{schedule}/marks', [\App\Http\Controllers\Academics\MarksController::class, 'index'])->name('academics.exams.marks.index');
+    Route::post('/academics/exams/schedules/{schedule}/marks', [\App\Http\Controllers\Academics\MarksController::class, 'saveMarks'])->name('academics.exams.marks.save');
+
+    Route::get('/academics/homework', [\App\Http\Controllers\Academics\HomeworkController::class, 'index'])->name('academics.homework.index');
+    Route::post('/academics/homework', [\App\Http\Controllers\Academics\HomeworkController::class, 'store'])->name('academics.homework.store');
+
+    Route::get('/academics/student-attendance', [\App\Http\Controllers\Academics\StudentAttendanceController::class, 'index'])->name('academics.student-attendance.index');
+    Route::post('/academics/student-attendance', [\App\Http\Controllers\Academics\StudentAttendanceController::class, 'record'])->name('academics.student-attendance.record');
 });
 
 /*

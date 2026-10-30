@@ -22,19 +22,19 @@
                 this.isRefreshing = true;
                 fetch('{{ route('admin.metrics.live') }}')
                     .then(r => r.json())
-                    .then(data => {
+                    .then(function(data) {
                         if (data.status === 'success') {
                             this.metrics = data.metrics;
                             this.lastUpdated = data.timestamp;
                         }
-                    })
-                    .catch(e => console.error('Error fetching live metrics:', e))
-                    .finally(() => this.isRefreshing = false);
+                    }.bind(this))
+                    .catch(function(e) { console.error('Error fetching live metrics:', e); })
+                    .finally(function() { this.isRefreshing = false; }.bind(this));
             }
         }"
         x-init="
             // Auto-refresh polling every 10 seconds per rule requirements
-            setInterval(() => fetchLiveMetrics(), 10000);
+            setInterval(function() { fetchLiveMetrics(); }, 10000);
         "
     >
         <!-- Top Operations Bar -->
@@ -178,60 +178,75 @@
                     </div>
                 </div>
 
-                <div class="h-64 relative" x-data x-init="
-                    const ctx = document.getElementById('attendanceTrendChart');
-                    if (ctx) {
-                        new Chart(ctx, {
-                            type: 'line',
-                            data: {
-                                labels: @json($trendData['labels']),
-                                datasets: [
-                                    {
-                                        label: 'Students (%)',
-                                        data: @json($trendData['students']),
-                                        borderColor: '#047857',
-                                        backgroundColor: 'rgba(4, 120, 87, 0.1)',
-                                        tension: 0.35,
-                                        fill: true,
-                                        borderWidth: 2.5,
-                                        pointRadius: 4,
-                                        pointBackgroundColor: '#047857'
-                                    },
-                                    {
-                                        label: 'Staff (%)',
-                                        data: @json($trendData['staff']),
-                                        borderColor: '#d97706',
-                                        borderDash: [5, 5],
-                                        tension: 0.25,
-                                        fill: false,
-                                        borderWidth: 2,
-                                        pointRadius: 3,
-                                        pointBackgroundColor: '#d97706'
-                                    }
-                                ]
-                            },
-                            options: {
-                                responsive: true,
-                                maintainAspectRatio: false,
-                                plugins: {
-                                    legend: {
-                                        position: 'bottom',
-                                        labels: { boxWidth: 12, font: { size: 11, family: 'Inter' } }
-                                    }
-                                },
-                                scales: {
-                                    y: {
-                                        min: 85,
-                                        max: 100,
-                                        ticks: { callback: v => v + '%' }
-                                    }
-                                }
-                            }
-                        });
-                    }
-                ">
+                <div class="h-64 relative">
                     <canvas id="attendanceTrendChart"></canvas>
                 </div>
+                <script>
+                    (function() {
+                        function initAttendanceChart() {
+                            var ctx = document.getElementById('attendanceTrendChart');
+                            if (!ctx) return;
+                            if (typeof Chart === 'undefined') {
+                                setTimeout(initAttendanceChart, 100);
+                                return;
+                            }
+                            new Chart(ctx, {
+                                type: 'line',
+                                data: {
+                                    labels: @json($trendData['labels']),
+                                    datasets: [
+                                        {
+                                            label: 'Students (%)',
+                                            data: @json($trendData['students']),
+                                            borderColor: '#047857',
+                                            backgroundColor: 'rgba(4, 120, 87, 0.1)',
+                                            tension: 0.35,
+                                            fill: true,
+                                            borderWidth: 2.5,
+                                            pointRadius: 4,
+                                            pointBackgroundColor: '#047857'
+                                        },
+                                        {
+                                            label: 'Staff (%)',
+                                            data: @json($trendData['staff']),
+                                            borderColor: '#d97706',
+                                            borderDash: [5, 5],
+                                            tension: 0.25,
+                                            fill: false,
+                                            borderWidth: 2,
+                                            pointRadius: 3,
+                                            pointBackgroundColor: '#d97706'
+                                        }
+                                    ]
+                                },
+                                options: {
+                                    responsive: true,
+                                    maintainAspectRatio: false,
+                                    plugins: {
+                                        legend: {
+                                            position: 'bottom',
+                                            labels: { boxWidth: 12, font: { size: 11, family: 'Inter' } }
+                                        }
+                                    },
+                                    scales: {
+                                        y: {
+                                            min: 80,
+                                            max: 100,
+                                            ticks: {
+                                                callback: function(v) { return v + '%'; }
+                                            }
+                                        }
+                                    }
+                                }
+                            });
+                        }
+                        if (document.readyState === 'loading') {
+                            document.addEventListener('DOMContentLoaded', initAttendanceChart);
+                        } else {
+                            initAttendanceChart();
+                        }
+                    })();
+                </script>
             </div>
 
             <!-- Priority Operational Alerts Widget (Late staff, Fee Defaulters, Low Stock) -->

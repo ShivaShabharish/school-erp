@@ -148,5 +148,6 @@
     <!-- Toast Notification Container -->
     <x-toast />
 
+    @stack('scripts')
 </body>
 </html>

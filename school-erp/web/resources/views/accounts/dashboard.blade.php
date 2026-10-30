@@ -24,7 +24,7 @@
             }
         }"
         x-init="
-            setInterval(() => fetchLiveBilling(), 10000);
+            setInterval(function() { fetchLiveBilling(); }, 10000);
         "
     >
         <!-- Accounts Portal Banner -->

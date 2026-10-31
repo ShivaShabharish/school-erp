@@ -4,7 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 export const WIFI_API_BASE_URL = 'http://192.168.10.34:8000/api/v1';
 
 // Public Cloudflare Tunnel endpoint
-export const CLOUDFLARE_API_BASE_URL = 'https://com-kim-agrees-discovery.trycloudflare.com/api/v1';
+export const CLOUDFLARE_API_BASE_URL = 'https://increase-boxes-invoice-stewart.trycloudflare.com/api/v1';
 
 export const DEFAULT_API_BASE_URL = WIFI_API_BASE_URL;
 
@@ -12,9 +12,16 @@ const API_STORAGE_KEY = '@school_erp_api_url';
 
 export const getApiBaseUrl = async (): Promise<string> => {
   try {
+    // If running in a web browser (e.g. Render, Vercel, or custom domain), use same origin
+    if (typeof window !== 'undefined' && window.location && window.location.origin) {
+      if (!window.location.origin.includes('localhost') && !window.location.origin.includes('127.0.0.1')) {
+        return `${window.location.origin}/api/v1`;
+      }
+    }
+
     const saved = await AsyncStorage.getItem(API_STORAGE_KEY);
     // If the saved URL is the dead old tunnel, default back to active WiFi or fresh tunnel
-    if (saved && saved.includes('calgary-dental')) {
+    if (saved && (saved.includes('calgary-dental') || saved.includes('increase-boxes'))) {
       await AsyncStorage.removeItem(API_STORAGE_KEY);
       return DEFAULT_API_BASE_URL;
     }

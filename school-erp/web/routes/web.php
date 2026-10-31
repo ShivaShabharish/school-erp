@@ -41,6 +41,18 @@ Route::get('/health', function () {
 
 /*
 |--------------------------------------------------------------------------
+| Mobile App Web Distribution Route
+|--------------------------------------------------------------------------
+*/
+Route::get('/app', function () {
+    return response()->file(public_path('app/index.html'));
+});
+Route::get('/app/{any}', function () {
+    return response()->file(public_path('app/index.html'));
+})->where('any', '^(?!_expo|assets).*$');
+
+/*
+|--------------------------------------------------------------------------
 | Authentication Routes
 |--------------------------------------------------------------------------
 */

@@ -1,6 +1,6 @@
 <!-- AI Campus Co-Pilot with Stylish 3D Student Mascot & Voice Recognition -->
 <div x-data="aiCampusMascot()" class="fixed bottom-6 right-6 z-50 font-sans" @keydown.escape.window="open = false">
-    <!-- Sleek, Modern Floating Student Mascot Trigger (No cartoon orbits, clean & stylish) -->
+    <!-- Sleek, Modern Floating Student Mascot Trigger -->
     <div x-show="!open" class="relative flex items-center select-none" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4 scale-95" x-transition:enter-end="opacity-100 translate-y-0 scale-100">
         <button
             @click="toggle()"
@@ -135,13 +135,21 @@
             </div>
         </div>
 
-        <!-- Voice Error Alert Banner -->
-        <div x-show="voiceError" class="bg-amber-50 dark:bg-amber-950/70 border-b border-amber-200 dark:border-amber-900 px-4 py-2 flex items-center justify-between text-xs text-amber-800 dark:text-amber-200" x-transition>
-            <div class="flex items-center gap-2">
-                <svg class="w-4 h-4 text-amber-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-                <span x-text="voiceError"></span>
+        <!-- Voice Error Alert Banner with 1-Tap Fallback Options -->
+        <div x-show="voiceError" class="bg-amber-50 dark:bg-amber-950/70 border-b border-amber-200 dark:border-amber-900 px-4 py-2.5 flex flex-col gap-1.5 text-xs text-amber-800 dark:text-amber-200" x-transition>
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <svg class="w-4 h-4 text-amber-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                    <span class="font-medium" x-text="voiceError"></span>
+                </div>
+                <button @click="voiceError = null" class="text-amber-600 font-bold ml-2 cursor-pointer">&times;</button>
             </div>
-            <button @click="voiceError = null" class="text-amber-600 font-bold ml-2 cursor-pointer">&times;</button>
+            <div class="flex items-center gap-1.5 flex-wrap pt-0.5">
+                <span class="text-[10px] text-amber-900 dark:text-amber-300 font-bold">Quick 1-Tap Voice:</span>
+                <button type="button" @click="send('Show my attendance percentage'); voiceError = null;" class="text-[10px] bg-white dark:bg-slate-800 border border-amber-300 dark:border-amber-700 px-2 py-0.5 rounded-full font-bold hover:bg-amber-100 cursor-pointer">📊 Attendance</button>
+                <button type="button" @click="send('Open class timetable'); voiceError = null;" class="text-[10px] bg-white dark:bg-slate-800 border border-amber-300 dark:border-amber-700 px-2 py-0.5 rounded-full font-bold hover:bg-amber-100 cursor-pointer">📅 Timetable</button>
+                <button type="button" @click="send('Any pending fee due?'); voiceError = null;" class="text-[10px] bg-white dark:bg-slate-800 border border-amber-300 dark:border-amber-700 px-2 py-0.5 rounded-full font-bold hover:bg-amber-100 cursor-pointer">💳 Fees Due</button>
+            </div>
         </div>
 
         <!-- Chat Conversation Messages -->
@@ -255,7 +263,7 @@ function aiCampusMascot() {
         open: false,
         listening: false,
         loading: false,
-        lang: 'ta-IN', // Default Tamil for TN School; toggles to en-IN
+        lang: 'en-IN', // Default en-IN for broad compatibility; toggles to ta-IN
         inputQuery: '',
         voiceError: null,
         recognition: null,
@@ -265,23 +273,43 @@ function aiCampusMascot() {
                 text: 'Vanakkam! I am Malar, your Student Mascot & AI Campus Co-Pilot for Test Subject Higher Secondary School. \n\nYou can speak with me in Tamil (தமிழ்) or English, or ask about attendance %, timetable, fees, or campus navigation. Tap the mic to speak!'
             }
         ],
-        init() {
-            this.setupSpeechRecognition();
-        },
         toggleLang() {
             this.lang = this.lang === 'ta-IN' ? 'en-IN' : 'ta-IN';
-            if (this.recognition) {
-                this.recognition.lang = this.lang;
+            if (this.listening && this.recognition) {
+                try { this.recognition.abort(); } catch(e) {}
+                this.listening = false;
             }
         },
-        setupSpeechRecognition() {
-            const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if (!SpeechRec) {
-                console.warn('SpeechRecognition API not natively available in this browser.');
+        toggle() {
+            this.open = !this.open;
+            if (this.open) {
+                this.$nextTick(() => this.scrollToBottom());
+            }
+        },
+        toggleVoice() {
+            this.voiceError = null;
+
+            if (this.listening) {
+                if (this.recognition) {
+                    try { this.recognition.stop(); } catch (e) {}
+                }
+                this.listening = false;
                 return;
             }
 
+            const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRec) {
+                this.voiceError = 'Voice speech recognition is not supported on this browser. Please use Chrome or Edge.';
+                return;
+            }
+
+            // Always instantiate fresh instance right on click to avoid Chrome idle network disconnect
             try {
+                if (this.recognition) {
+                    try { this.recognition.abort(); } catch (e) {}
+                    this.recognition = null;
+                }
+
                 this.recognition = new SpeechRec();
                 this.recognition.continuous = false;
                 this.recognition.interimResults = true;
@@ -318,80 +346,36 @@ function aiCampusMascot() {
                 };
 
                 this.recognition.onerror = (event) => {
-                    console.error('Speech recognition error:', event.error);
+                    console.warn('SpeechRecognition error:', event.error);
                     this.listening = false;
+
                     if (event.error === 'not-allowed' || event.error === 'permission-denied') {
                         this.voiceError = 'Microphone permission blocked. Please allow microphone in browser settings.';
                     } else if (event.error === 'no-speech') {
-                        this.voiceError = 'No speech detected. Please speak closer to microphone.';
+                        this.voiceError = 'No speech detected. Please speak closer to your microphone.';
                     } else if (event.error === 'network') {
-                        this.voiceError = 'Network connection issue for speech service.';
+                        // Switch language and guide user cleanly
+                        if (this.lang === 'ta-IN') {
+                            this.lang = 'en-IN';
+                            this.voiceError = 'Tamil voice server timeout. Switched to English — tap mic to speak again.';
+                        } else {
+                            this.voiceError = 'Voice network timeout. Tap any quick button below or retry.';
+                        }
                     } else {
-                        this.voiceError = 'Voice error: ' + event.error;
+                        this.voiceError = 'Voice status: ' + event.error;
                     }
                 };
 
                 this.recognition.onend = () => {
                     this.listening = false;
                 };
-            } catch (e) {
-                console.error('Error initializing SpeechRecognition:', e);
-            }
-        },
-        toggle() {
-            this.open = !this.open;
-            if (this.open) {
-                this.$nextTick(() => this.scrollToBottom());
-            }
-        },
-        async toggleVoice() {
-            this.voiceError = null;
 
-            if (this.listening) {
-                if (this.recognition) {
-                    try { this.recognition.stop(); } catch (e) {}
-                }
-                this.listening = false;
-                return;
-            }
-
-            // Check browser audio permission explicitly first
-            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-                try {
-                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                    stream.getTracks().forEach(track => track.stop());
-                } catch (micErr) {
-                    console.warn('Microphone permission request error:', micErr);
-                    this.voiceError = 'Microphone access is required. Please grant microphone permission.';
-                    return;
-                }
-            }
-
-            if (!this.recognition) {
-                this.setupSpeechRecognition();
-            }
-
-            if (!this.recognition) {
-                alert('Voice speech recognition is not supported on this browser. Please use Google Chrome, Edge, or Android Chrome.');
-                return;
-            }
-
-            try {
-                this.recognition.lang = this.lang;
                 this.recognition.start();
                 this.listening = true;
             } catch (err) {
-                console.warn('Recognition start exception, retrying:', err);
-                try {
-                    this.recognition.stop();
-                    setTimeout(() => {
-                        this.recognition.lang = this.lang;
-                        this.recognition.start();
-                        this.listening = true;
-                    }, 200);
-                } catch (retryErr) {
-                    this.voiceError = 'Could not start voice service. Please refresh page.';
-                }
+                console.error('Error starting speech recognition:', err);
+                this.listening = false;
+                this.voiceError = 'Could not start voice service. Tap below or retry.';
             }
         },
         async send(query) {

@@ -96,7 +96,7 @@
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100 dark:divide-slate-700/60 text-slate-700 dark:text-slate-300 font-medium">
-                        @foreach($studentReports as $idx => $rep)
+                        @forelse($studentReports as $idx => $rep)
                             <tr class="hover:bg-slate-50/80 dark:hover:bg-slate-700/30 transition">
                                 <td class="px-4 py-3 font-mono font-bold text-emerald-700 dark:text-emerald-400">
                                     {{ $rep['student']->roll_number ?? '100' . ($idx + 1) }}
@@ -147,7 +147,13 @@
                                     </button>
                                 </td>
                             </tr>
-                        @endforeach
+                        @empty
+                            <tr>
+                                <td colspan="{{ count($subjects) + 6 }}" class="px-6 py-12 text-center text-slate-400">
+                                    No active students enrolled in this section. Please select another standard or section.
+                                </td>
+                            </tr>
+                        @endforelse
                     </tbody>
                 </table>
             </div>

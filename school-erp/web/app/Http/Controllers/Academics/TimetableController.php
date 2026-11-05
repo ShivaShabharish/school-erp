@@ -24,11 +24,31 @@ class TimetableController extends Controller
     public function index(Request $request): View
     {
         $classes = SchoolClass::with('sections')->orderBy('order_sequence')->get();
-        $staffMembers = Staff::with('user')->where('status', 'active')->where('department', 'Teaching')->orderBy('id')->get();
+
+        // Include all teaching faculty & instructors across academic departments
+        $staffMembers = Staff::with('user')
+            ->where('status', 'active')
+            ->where(function ($query) {
+                $query->whereNotIn('department', ['Transport', 'School Store', 'Administration', 'Accounts & Finance'])
+                      ->orWhere('designation', 'like', '%Teacher%')
+                      ->orWhere('designation', 'like', '%PGT%')
+                      ->orWhere('designation', 'like', '%TGT%')
+                      ->orWhere('designation', 'like', '%Instructor%');
+            })
+            ->orderBy('id')
+            ->get();
+
+        if ($staffMembers->isEmpty()) {
+            $staffMembers = Staff::with('user')->where('status', 'active')->orderBy('id')->get();
+        }
+
         $subjects = Subject::orderBy('name')->get();
 
-        $selectedClassId = $request->get('class_id', $classes->first()->id ?? null);
-        $selectedSectionId = $request->get('section_id', $classes->first()?->sections->first()?->id ?? null);
+        // Default to Class 10 (or first class) with its first section
+        $defaultClass = $classes->first(fn($c) => str_contains(strtolower($c->name), '10')) ?? $classes->first();
+        $selectedClassId = $request->get('class_id', $defaultClass?->id ?? null);
+        $selectedClass = $classes->firstWhere('id', $selectedClassId) ?? $defaultClass;
+        $selectedSectionId = $request->get('section_id', $selectedClass?->sections->first()?->id ?? null);
 
         $days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
         $periods = [1, 2, 3, 4, 5, 6, 7, 8];

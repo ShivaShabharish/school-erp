@@ -138,7 +138,7 @@
                                                     <svg class="h-3 w-3 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                                     </svg>
-                                                    <span>{{ $slot->teacher?->user?->name ?? 'Staff' }}</span>
+                                                    <span>{{ $slot->teacher?->full_name ?? 'Staff' }}</span>
                                                 </div>
                                             </div>
                                         @else
@@ -212,9 +212,11 @@
                     <div>
                         <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Assigned Teacher (Clash Checked) *</label>
                         <select name="staff_id" required class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500">
-                            @foreach($staffMembers as $t)
-                                <option value="{{ $t->id }}">{{ $t->user?->name }} ({{ $t->employee_code }} • {{ $t->designation }})</option>
-                            @endforeach
+                            @forelse($staffMembers as $t)
+                                <option value="{{ $t->id }}">{{ $t->full_name }} ({{ $t->employee_code }} • {{ $t->designation }} • {{ $t->department }})</option>
+                            @empty
+                                <option disabled>No teachers currently active</option>
+                            @endforelse
                         </select>
                     </div>
 

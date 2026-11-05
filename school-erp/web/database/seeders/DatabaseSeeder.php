@@ -171,6 +171,8 @@ class DatabaseSeeder extends Seeder
             ['E. Jayanthi', 'Special Educator', 'Academics'],
             ['J. Robert', 'French Teacher', 'Languages'],
             ['T. Geetha', 'Junior Accountant', 'Accounts & Finance'],
+            ['S. Murugesan', 'Senior School Bus Driver (Route 1: Town to Campus)', 'Transport'],
+            ['K. Rajendran', 'School Bus Driver (Route 2: Alangudi Link)', 'Transport'],
         ];
 
         $createdStaff = [];
@@ -197,7 +199,7 @@ class DatabaseSeeder extends Seeder
                 [
                     'name' => $tsn[0],
                     'password' => Hash::make('Password@123'),
-                    'role' => 'teacher',
+                    'role' => $tsn[2] === 'Transport' ? 'staff' : ($tsn[2] === 'Accounts & Finance' ? 'accountant' : 'teacher'),
                     'phone' => '+91 98421 ' . str_pad($idx + 10, 5, '0', STR_PAD_LEFT),
                     'is_active' => true,
                 ]
@@ -209,7 +211,7 @@ class DatabaseSeeder extends Seeder
                     'user_id' => $user->id,
                     'designation' => $tsn[1],
                     'department' => $tsn[2],
-                    'qualification' => 'M.A., B.Ed.',
+                    'qualification' => $tsn[2] === 'Transport' ? 'Heavy Passenger Vehicle (HPV) License' : 'M.A., B.Ed.',
                     'joining_date' => '2021-06-15',
                     'basic_salary' => 38000,
                     'status' => 'active',
@@ -633,42 +635,57 @@ class DatabaseSeeder extends Seeder
             $createdSubjects[$s['code']] = \App\Models\Subject::firstOrCreate(['code' => $s['code']], $s);
         }
 
-        // Timetable Slots for Class 10 (Section A & B)
+        // Timetable Slots for Class 10 (Section A & B) and Default Class
         $class10 = \App\Models\SchoolClass::where('name', 'like', '%10%')->first() ?? $allClasses->first();
-        $sections10 = \App\Models\Section::where('school_class_id', $class10->id)->get();
+        $targetClasses = [$class10];
+        if ($allClasses->first()->id !== $class10->id) {
+            $targetClasses[] = $allClasses->first();
+        }
 
         $days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
         $subjectCodes = ['ENG', 'TAM', 'MAT', 'SCI', 'SOC', 'MAT', 'CSC', 'ENG'];
 
-        $teachingStaff = \App\Models\Staff::where('department', 'Teaching')->orWhere('department', 'Mathematics')->orWhere('department', 'Science')->get();
+        // 5 Core Teaching Staff with distinct subjects
+        $teachingStaff = \App\Models\Staff::with('user')
+            ->where('status', 'active')
+            ->where(function ($q) {
+                $q->whereIn('department', ['Mathematics', 'Science', 'English Language', 'Tamil Language', 'Computer Science', 'Social Studies'])
+                  ->orWhere('designation', 'like', '%Teacher%')
+                  ->orWhere('designation', 'like', '%PGT%')
+                  ->orWhere('designation', 'like', '%TGT%');
+            })
+            ->get();
+
         if ($teachingStaff->isEmpty()) {
             $teachingStaff = \App\Models\Staff::all();
         }
 
-        foreach ($sections10 as $sIdx => $sec) {
-            foreach ($days as $dIdx => $day) {
-                for ($p = 1; $p <= 8; $p++) {
-                    $code = $subjectCodes[($p - 1 + $dIdx) % count($subjectCodes)];
-                    $subj = $createdSubjects[$code] ?? $createdSubjects['ENG'];
-                    // Distribute teachers so there is no teacher clash between Section A and B
-                    $tIdx = ($p + $dIdx + ($sIdx * 3)) % $teachingStaff->count();
-                    $assignedTeacher = $teachingStaff[$tIdx];
+        foreach ($targetClasses as $cls) {
+            $sections = \App\Models\Section::where('school_class_id', $cls->id)->get();
+            foreach ($sections as $sIdx => $sec) {
+                foreach ($days as $dIdx => $day) {
+                    for ($p = 1; $p <= 8; $p++) {
+                        $code = $subjectCodes[($p - 1 + $dIdx) % count($subjectCodes)];
+                        $subj = $createdSubjects[$code] ?? $createdSubjects['ENG'];
+                        $tIdx = ($p + $dIdx + ($sIdx * 2)) % max(1, $teachingStaff->count());
+                        $assignedTeacher = $teachingStaff[$tIdx];
 
-                    \App\Models\Timetable::firstOrCreate(
-                        [
-                            'school_class_id' => $class10->id,
-                            'section_id' => $sec->id,
-                            'day_of_week' => $day,
-                            'period_number' => $p,
-                        ],
-                        [
-                            'subject_id' => $subj->id,
-                            'staff_id' => $assignedTeacher->id,
-                            'start_time' => '09:00:00',
-                            'end_time' => '09:45:00',
-                            'room_no' => 'Room ' . ($sIdx === 0 ? '201' : '202'),
-                        ]
-                    );
+                        \App\Models\Timetable::firstOrCreate(
+                            [
+                                'school_class_id' => $cls->id,
+                                'section_id' => $sec->id,
+                                'day_of_week' => $day,
+                                'period_number' => $p,
+                            ],
+                            [
+                                'subject_id' => $subj->id,
+                                'staff_id' => $assignedTeacher->id,
+                                'start_time' => sprintf('%02d:00:00', 8 + $p),
+                                'end_time' => sprintf('%02d:45:00', 8 + $p),
+                                'room_no' => 'Room ' . ($sIdx === 0 ? '201' : '202'),
+                            ]
+                        );
+                    }
                 }
             }
         }

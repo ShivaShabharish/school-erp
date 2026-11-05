@@ -14,9 +14,9 @@ class EnsureApiEnabled
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $enabled = Setting::get('app_integration_enabled', 'false');
+        $enabled = Setting::get('app_integration_enabled', 'true');
 
-        if ($enabled !== 'true' && $enabled !== true && $enabled !== '1' && $enabled !== 1) {
+        if ($enabled === 'false' || $enabled === false || $enabled === '0' || $enabled === 0) {
             return response()->json([
                 'status' => 'error',
                 'code' => 'API_INTEGRATION_DISABLED',

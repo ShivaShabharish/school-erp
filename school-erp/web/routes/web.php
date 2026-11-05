@@ -51,6 +51,9 @@ Route::get('/app/{any}', function () {
     return response()->file(public_path('app/index.html'));
 })->where('any', '^(?!_expo|assets).*$');
 
+// Web AI Assistant Endpoint
+Route::post('/api/ai/assistant', [\App\Http\Controllers\Api\V1\AiAssistantController::class, 'query'])->name('web.ai.assistant');
+
 /*
 |--------------------------------------------------------------------------
 | Authentication Routes

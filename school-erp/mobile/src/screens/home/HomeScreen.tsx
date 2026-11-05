@@ -11,6 +11,7 @@ import {
 import { Colors } from '../../theme/colors';
 import { useAuth } from '../../context/AuthContext';
 import { apiService } from '../../services/api';
+import { Sparkles, Mic } from 'lucide-react-native';
 
 export const HomeScreen: React.FC<{ navigation?: any }> = ({ navigation }) => {
   const { user, selectedStudent } = useAuth();
@@ -101,6 +102,28 @@ export const HomeScreen: React.FC<{ navigation?: any }> = ({ navigation }) => {
           </View>
         </View>
       </View>
+
+      {/* Futuristic AI Campus Co-Pilot Interactive Card */}
+      <TouchableOpacity
+        style={styles.aiBannerCard}
+        onPress={() => navigation?.navigate('AiAssistant')}
+      >
+        <View style={styles.aiBannerLeft}>
+          <View style={styles.aiIconBadge}>
+            <Sparkles size={22} color="#F59E0B" />
+          </View>
+          <View style={{ flex: 1 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+              <Text style={styles.aiTitle}>Malar AI Voice Co-Pilot</Text>
+              <View style={styles.aiLiveBadge}><Text style={styles.aiLiveText}>VOICE AI</Text></View>
+            </View>
+            <Text style={styles.aiSubtitle}>Speak or ask attendance, fees & timetable</Text>
+          </View>
+        </View>
+        <View style={styles.aiMicCircle}>
+          <Mic size={18} color="#ffffff" />
+        </View>
+      </TouchableOpacity>
 
       {/* Overview Stat Cards Grid */}
       <View style={styles.statsGrid}>
@@ -474,5 +497,71 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: 12,
     color: Colors.textMuted,
+  },
+  aiBannerCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#064E3B',
+    borderRadius: 16,
+    padding: 14,
+    marginBottom: 16,
+    borderWidth: 1.5,
+    borderColor: '#059669',
+    shadowColor: '#047857',
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    elevation: 4,
+  },
+  aiBannerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    flex: 1,
+  },
+  aiIconBadge: {
+    width: 40,
+    height: 40,
+    borderRadius: 14,
+    backgroundColor: '#022C22',
+    borderWidth: 1.5,
+    borderColor: '#F59E0B',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  aiTitle: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: '#ffffff',
+  },
+  aiLiveBadge: {
+    backgroundColor: 'rgba(245, 158, 11, 0.25)',
+    borderColor: '#F59E0B',
+    borderWidth: 1,
+    paddingHorizontal: 6,
+    paddingVertical: 1,
+    borderRadius: 6,
+  },
+  aiLiveText: {
+    fontSize: 9,
+    fontWeight: '800',
+    color: '#FBBF24',
+  },
+  aiSubtitle: {
+    fontSize: 11,
+    fontWeight: '500',
+    color: '#A7F3D0',
+    marginTop: 2,
+  },
+  aiMicCircle: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: '#047857',
+    borderWidth: 1,
+    borderColor: '#34D399',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginLeft: 8,
   },
 });

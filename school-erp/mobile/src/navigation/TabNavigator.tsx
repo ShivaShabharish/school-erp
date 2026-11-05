@@ -9,6 +9,7 @@ import {
   CreditCard,
   Bell,
   User,
+  Sparkles,
 } from 'lucide-react-native';
 import { Colors } from '../theme/colors';
 
@@ -18,9 +19,11 @@ import { AttendanceScreen } from '../screens/attendance/AttendanceScreen';
 import { FeesScreen } from '../screens/fees/FeesScreen';
 import { NoticesScreen } from '../screens/notices/NoticesScreen';
 import { ProfileScreen } from '../screens/profile/ProfileScreen';
+import { AiAssistantScreen } from '../screens/ai/AiAssistantScreen';
 
 export type BottomTabParamList = {
   Home: undefined;
+  AiAssistant: undefined;
   Timetable: undefined;
   Attendance: undefined;
   Fees: undefined;
@@ -75,6 +78,18 @@ export const TabNavigator: React.FC = () => {
           tabBarLabel: 'Home',
           tabBarIcon: ({ color, focused }) => (
             <Home size={22} color={color} strokeWidth={focused ? 2.6 : 2} />
+          ),
+        }}
+      />
+
+      <Tab.Screen
+        name="AiAssistant"
+        component={AiAssistantScreen}
+        options={{
+          headerTitle: 'Malar AI Voice Co-Pilot',
+          tabBarLabel: 'AI Voice',
+          tabBarIcon: ({ color, focused }) => (
+            <Sparkles size={22} color={focused ? '#F59E0B' : color} strokeWidth={focused ? 2.8 : 2} />
           ),
         }}
       />

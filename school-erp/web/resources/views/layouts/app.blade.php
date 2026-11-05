@@ -157,6 +157,9 @@
     <!-- Toast Notification Container -->
     <x-toast />
 
+    <!-- Futuristic AI Campus Co-Pilot (Voice & Chat) -->
+    @include('components.ai-assistant')
+
     @stack('scripts')
 </body>
 </html>

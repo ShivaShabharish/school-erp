@@ -978,7 +978,7 @@ class DatabaseSeeder extends Seeder
             'school_affiliation_no' => 'TN-EDU-2026-4821',
             'school_location' => 'Pudukkottai, Tamil Nadu',
             'currency_symbol' => '₹',
-            'app_integration_enabled' => 'false',
+            'app_integration_enabled' => 'true',
             'biometric_api_secret' => 'BIO-SEC-9842-TEST-KEY',
             'fee_terms' => '3',
             'receipt_prefix_fees' => 'SCH/2026-27/REC-',

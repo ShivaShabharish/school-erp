@@ -28,6 +28,9 @@ Route::prefix('v1')->group(function () {
     // Phase 4: Biometric Machine Punch Interface (Always open for hardware terminal)
     Route::post('/biometric/punch', [BiometricApiController::class, 'punch'])->name('api.v1.biometric.punch');
 
+    // AI Campus Assistant (Voice & Chat Co-Pilot)
+    Route::post('/ai/assistant', [\App\Http\Controllers\Api\V1\AiAssistantController::class, 'query'])->name('api.v1.ai.assistant');
+
     // Mobile App REST API Gateway (Guarded by EnsureApiEnabled switch)
     Route::middleware([EnsureApiEnabled::class])->group(function () {
         // Auth

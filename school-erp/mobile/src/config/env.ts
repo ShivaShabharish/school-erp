@@ -1,12 +1,15 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+// Permanent 24/7 Render Cloud endpoint
+export const PRODUCTION_RENDER_API_BASE_URL = 'https://school-erp-1-14v6.onrender.com/api/v1';
+
 // Local Wi-Fi endpoint directly connects computer & phone with zero internet latency
 export const WIFI_API_BASE_URL = 'http://192.168.10.34:8000/api/v1';
 
 // Public Cloudflare Tunnel endpoint
 export const CLOUDFLARE_API_BASE_URL = 'https://increase-boxes-invoice-stewart.trycloudflare.com/api/v1';
 
-export const DEFAULT_API_BASE_URL = WIFI_API_BASE_URL;
+export const DEFAULT_API_BASE_URL = PRODUCTION_RENDER_API_BASE_URL;
 
 const API_STORAGE_KEY = '@school_erp_api_url';
 

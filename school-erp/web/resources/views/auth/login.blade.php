@@ -205,8 +205,5 @@
     <!-- Toast Notification Container -->
     <x-toast />
 
-    <!-- Futuristic AI Campus Co-Pilot (Voice & Chat with 3D Student Mascot) -->
-    @include('components.ai-assistant')
-
 </body>
 </html>

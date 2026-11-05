@@ -1,3 +1,4 @@
+@auth
 <!-- AI Campus Co-Pilot with Stylish 3D Student Mascot & Voice Recognition -->
 <div x-data="aiCampusMascot()" class="fixed bottom-6 right-6 z-50 font-sans" @keydown.escape.window="open = false">
     <!-- Sleek, Modern Floating Student Mascot Trigger -->
@@ -449,3 +450,4 @@ function aiCampusMascot() {
     };
 }
 </script>
+@endauth

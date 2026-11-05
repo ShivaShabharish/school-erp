@@ -80,6 +80,11 @@ class Student extends Model
         return $this->belongsTo(User::class, 'parent_id');
     }
 
+    public function marks(): HasMany
+    {
+        return $this->hasMany(Mark::class);
+    }
+
     public function attendances(): HasMany
     {
         return $this->hasMany(StudentAttendance::class);

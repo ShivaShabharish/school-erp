@@ -28,7 +28,7 @@ class ReportCardController extends Controller
         $selectedSection = Section::find($selectedSectionId);
         $selectedExam = Exam::find($selectedExamId);
 
-        $students = Student::with(['user', 'marks.schedule.subject'])
+        $students = Student::with(['marks.schedule.subject'])
             ->where('school_class_id', $selectedClassId)
             ->when($selectedSectionId, fn($q) => $q->where('section_id', $selectedSectionId))
             ->where('status', 'active')

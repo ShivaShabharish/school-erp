@@ -1,149 +1,53 @@
-<!-- AI Campus Co-Pilot with 3D Animated Student Avatar Mascot & Voice Recognition -->
+<!-- AI Campus Co-Pilot with Stylish 3D Student Mascot & Voice Recognition -->
 <div x-data="aiCampusMascot()" class="fixed bottom-6 right-6 z-50 font-sans" @keydown.escape.window="open = false">
-    <!-- 3D Student Avatar Mascot Trigger (Replaces old plain button) -->
-    <div x-show="!open" class="relative flex flex-col items-center select-none" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 scale-90" x-transition:enter-end="opacity-100 scale-100">
-        <!-- Floating Speech Bubble / Tooltip -->
-        <div
-            @click="toggle()"
-            class="mb-2 cursor-pointer group flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-emerald-500/40 shadow-lg shadow-emerald-950/20 hover:scale-105 active:scale-95 transition-all animate-bounce"
-            style="animation-duration: 2.8s;"
-        >
-            <span class="flex h-2.5 w-2.5 relative">
-                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
-            </span>
-            <span class="text-[11px] font-bold text-slate-800 dark:text-emerald-300 tracking-wide">
-                👋 Vanakkam! <span class="text-emerald-700 dark:text-emerald-400 font-extrabold">Tap to Speak</span>
-            </span>
-            <span class="text-[9px] bg-amber-400/20 text-amber-700 dark:text-amber-300 font-bold px-1.5 py-0.5 rounded-full border border-amber-400/30">
-                AI Voice
-            </span>
-        </div>
-
-        <!-- 3D Student Avatar Character with 360 Turntable Walk/Action Animation -->
+    <!-- Sleek, Modern Floating Student Mascot Trigger (No cartoon orbits, clean & stylish) -->
+    <div x-show="!open" class="relative flex items-center select-none" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4 scale-95" x-transition:enter-end="opacity-100 translate-y-0 scale-100">
         <button
             @click="toggle()"
             type="button"
-            class="relative group cursor-pointer p-0 bg-transparent border-0 outline-none focus:outline-none transition-transform duration-300 hover:scale-110 active:scale-95"
+            class="group relative flex items-center gap-3.5 pl-2 pr-5 py-2 rounded-full bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border border-emerald-500/30 dark:border-emerald-500/40 shadow-xl shadow-emerald-950/20 hover:shadow-2xl hover:shadow-emerald-600/30 hover:scale-[1.03] active:scale-95 transition-all duration-300 cursor-pointer"
             aria-label="Open Malar AI Student Co-Pilot"
         >
-            <!-- Futuristic Holographic Pedestal with Orbiting Energy Rings -->
-            <div class="relative w-28 h-28 flex items-center justify-center">
-                <!-- Outer Glowing Energy Ring -->
-                <div class="absolute bottom-1 w-24 h-8 rounded-[100%] bg-emerald-500/20 blur-sm animate-pulse"></div>
-                <div class="absolute bottom-2 w-20 h-6 rounded-[100%] border-2 border-emerald-400/60 shadow-[0_0_15px_rgba(16,185,129,0.5)] avatar-turntable-base"></div>
-                <div class="absolute bottom-3 w-14 h-4 rounded-[100%] border border-amber-400/80 shadow-[0_0_10px_rgba(245,158,11,0.6)]"></div>
-
-                <!-- 3D Student Mascot Model (Schoolboy in Uniform: White Shirt, Emerald & Gold Tie, Backpack, Waving Action) -->
-                <div class="relative w-24 h-26 flex flex-col items-center justify-center avatar-360-container">
-                    <svg viewBox="0 0 160 190" class="w-full h-full drop-shadow-[0_10px_12px_rgba(0,0,0,0.35)] student-mascot-svg">
-                        <!-- Backpack Straps & Silhouette Behind -->
-                        <g class="backpack-layer">
-                            <rect x="42" y="70" width="76" height="60" rx="16" fill="#047857" stroke="#065f46" stroke-width="3"/>
-                            <rect x="52" y="78" width="56" height="30" rx="8" fill="#065f46"/>
-                            <circle cx="80" cy="93" r="6" fill="#F59E0B"/>
-                        </g>
-
-                        <!-- Student Legs with Walking Animation -->
-                        <g class="legs-group">
-                            <!-- Left Leg -->
-                            <rect class="left-leg" x="58" y="130" width="16" height="34" rx="7" fill="#1e293b"/>
-                            <!-- Right Leg -->
-                            <rect class="right-leg" x="86" y="130" width="16" height="34" rx="7" fill="#1e293b"/>
-                            <!-- Left Shoe -->
-                            <ellipse cx="64" cy="164" rx="11" ry="6" fill="#0f172a"/>
-                            <path d="M54 163 Q64 167 74 163" stroke="#e2e8f0" stroke-width="1.5" fill="none"/>
-                            <!-- Right Shoe -->
-                            <ellipse cx="96" cy="164" rx="11" ry="6" fill="#0f172a"/>
-                            <path d="M86 163 Q96 167 106 163" stroke="#e2e8f0" stroke-width="1.5" fill="none"/>
-                        </g>
-
-                        <!-- Student Torso / School Uniform -->
-                        <g class="torso-group">
-                            <!-- Crisp White Uniform Shirt -->
-                            <path d="M48 76 L112 76 L106 132 L54 132 Z" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/>
-                            <!-- Uniform Belt & Dark Trousers Waistband -->
-                            <rect x="52" y="128" width="56" height="6" fill="#0f172a"/>
-                            <rect x="75" y="128" width="10" height="6" fill="#F59E0B" stroke="#b45309" stroke-width="1"/>
-                            
-                            <!-- School Uniform Collar -->
-                            <polygon points="62,76 80,95 72,76" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1"/>
-                            <polygon points="98,76 80,95 88,76" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1"/>
-
-                            <!-- Official Emerald Green & Gold Striped Tie -->
-                            <path d="M76 90 L84 90 L86 122 L80 128 L74 122 Z" fill="#047857" stroke="#065f46" stroke-width="1.5"/>
-                            <line x1="76" y1="96" x2="84" y2="100" stroke="#F59E0B" stroke-width="2"/>
-                            <line x1="75" y1="106" x2="85" y2="110" stroke="#F59E0B" stroke-width="2"/>
-                            <line x1="75" y1="116" x2="85" y2="120" stroke="#F59E0B" stroke-width="2"/>
-
-                            <!-- Chest Pocket with School Crest Monogram (TS) -->
-                            <rect x="56" y="94" width="14" height="16" rx="2" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
-                            <circle cx="63" cy="102" r="4.5" fill="#047857"/>
-                            <text x="63" y="104.5" font-size="5" font-weight="900" fill="#F59E0B" text-anchor="middle" font-family="sans-serif">TS</text>
-                        </g>
-
-                        <!-- Left Arm (Resting or holding strap) -->
-                        <g class="left-arm">
-                            <path d="M48 78 Q36 98 42 118" stroke="#ffffff" stroke-width="10" stroke-linecap="round" fill="none"/>
-                            <!-- Left Hand -->
-                            <circle cx="42" cy="120" r="6" fill="#fbcfe8"/>
-                        </g>
-
-                        <!-- Right Arm (Active Friendly Waving Hand!) -->
-                        <g class="right-arm-waving">
-                            <path d="M112 78 Q126 64 124 48" stroke="#ffffff" stroke-width="10" stroke-linecap="round" fill="none"/>
-                            <!-- Right Hand (Waving Palm) -->
-                            <ellipse cx="124" cy="44" rx="7" ry="8" fill="#fbcfe8"/>
-                            <ellipse cx="129" cy="42" rx="2.5" ry="4" fill="#fbcfe8"/>
-                        </g>
-
-                        <!-- Student Neck -->
-                        <rect x="74" y="66" width="12" height="12" rx="3" fill="#fbcfe8"/>
-
-                        <!-- Friendly Student Head & Face -->
-                        <g class="head-group">
-                            <!-- Ears -->
-                            <circle cx="56" cy="48" r="6" fill="#fbcfe8"/>
-                            <circle cx="104" cy="48" r="6" fill="#fbcfe8"/>
-
-                            <!-- Face -->
-                            <ellipse cx="80" cy="48" rx="24" ry="26" fill="#fce7f3"/>
-
-                            <!-- Big Expressive Animated Eyes -->
-                            <g class="mascot-eyes">
-                                <!-- Left Eye -->
-                                <ellipse cx="71" cy="46" rx="4" ry="5.5" fill="#0f172a"/>
-                                <circle cx="72.5" cy="44" r="1.8" fill="#ffffff"/>
-                                <!-- Right Eye -->
-                                <ellipse cx="89" cy="46" rx="4" ry="5.5" fill="#0f172a"/>
-                                <circle cx="90.5" cy="44" r="1.8" fill="#ffffff"/>
-                            </g>
-
-                            <!-- Friendly Cheerful Smile -->
-                            <path d="M73 57 Q80 64 87 57" stroke="#e11d48" stroke-width="2.5" stroke-linecap="round" fill="none"/>
-                            <!-- Rosy Cheeks -->
-                            <circle cx="65" cy="54" r="3.5" fill="#fda4af" opacity="0.6"/>
-                            <circle cx="95" cy="54" r="3.5" fill="#fda4af" opacity="0.6"/>
-
-                            <!-- Neat Student Haircut -->
-                            <path d="M56 42 Q58 20 80 18 Q102 20 104 42 Q96 32 80 32 Q64 32 56 42 Z" fill="#1e1b4b"/>
-                            <!-- Front Hair Tufts -->
-                            <path d="M72 26 Q80 34 88 28" stroke="#1e1b4b" stroke-width="4" stroke-linecap="round" fill="none"/>
-                        </g>
-
-                        <!-- Futuristic AI Floating Hologram Beacon above Mascot -->
-                        <g class="ai-halo">
-                            <circle cx="80" cy="10" r="4" fill="#10B981" filter="drop-shadow(0 0 6px #10B981)"/>
-                            <circle cx="80" cy="10" r="8" stroke="#F59E0B" stroke-width="1" stroke-dasharray="2 2" fill="none"/>
-                        </g>
-                    </svg>
+            <!-- High-End 3D Student Mascot Portrait in Gold-Accented Circular Ring -->
+            <div class="relative w-14 h-14 shrink-0">
+                <!-- Glowing Ambient Rim -->
+                <div class="absolute -inset-0.5 bg-gradient-to-tr from-emerald-500 via-amber-400 to-teal-500 rounded-full blur-[3px] opacity-70 group-hover:opacity-100 transition duration-300"></div>
+                
+                <!-- Avatar Image Container -->
+                <div class="relative w-full h-full rounded-full overflow-hidden border-2 border-white dark:border-slate-800 shadow-md">
+                    <img
+                        src="/images/student_mascot.jpg"
+                        alt="Malar AI Student Mascot"
+                        class="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
+                    />
                 </div>
+
+                <!-- Live Online Pulse Dot -->
+                <span class="absolute bottom-0 right-0 flex h-3.5 w-3.5">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-3.5 w-3.5 bg-emerald-500 border-2 border-white dark:border-slate-900"></span>
+                </span>
             </div>
 
-            <!-- Mini Pill Badge at Base -->
-            <div class="mt-1 flex items-center justify-center gap-1.5 px-3 py-1 rounded-full bg-emerald-700 hover:bg-emerald-600 text-white font-extrabold text-[11px] shadow-md border border-emerald-400/40 tracking-wider">
-                <span class="w-2 h-2 rounded-full bg-emerald-300 animate-ping"></span>
-                <span>MALAR AI</span>
+            <!-- Sleek Text & Voice Trigger Info -->
+            <div class="text-left flex flex-col justify-center">
+                <div class="flex items-center gap-1.5">
+                    <span class="font-extrabold text-sm text-slate-800 dark:text-white tracking-tight">Malar AI</span>
+                    <span class="text-[9px] bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-extrabold px-1.5 py-0.5 rounded-full uppercase tracking-wider shadow-xs">
+                        Voice Co-Pilot
+                    </span>
+                </div>
+                <p class="text-[11px] text-slate-500 dark:text-slate-400 font-medium flex items-center gap-1 mt-0.5">
+                    <svg class="w-3 h-3 text-emerald-600 dark:text-emerald-400 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/></svg>
+                    <span>Tap to Speak or Ask</span>
+                </p>
+            </div>
+
+            <!-- Mic Shortcut Button Icon on the Right -->
+            <div class="w-8 h-8 rounded-full bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center text-emerald-700 dark:text-emerald-300 group-hover:bg-emerald-600 group-hover:text-white transition-colors duration-300 ml-1 shadow-xs">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                </svg>
             </div>
         </button>
     </div>
@@ -160,29 +64,24 @@
         class="w-[94vw] sm:w-[440px] max-h-[85vh] bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800/80 rounded-3xl shadow-2xl overflow-hidden flex flex-col"
         style="display: none;"
     >
-        <!-- Modal Header with Mascot Mini Avatar & Language Switcher -->
+        <!-- Modal Header with 3D Mascot Avatar & Language Switcher -->
         <div class="px-5 py-3.5 bg-gradient-to-r from-emerald-800 via-teal-800 to-emerald-900 text-white flex items-center justify-between border-b border-emerald-700/50">
             <div class="flex items-center gap-3">
-                <!-- Mini Animated Mascot in Header -->
-                <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 p-0.5 shadow-md flex items-center justify-center shrink-0">
-                    <div class="w-full h-full bg-emerald-950 rounded-[14px] flex items-center justify-center overflow-hidden">
-                        <svg viewBox="0 0 160 160" class="w-10 h-10 mt-1">
-                            <ellipse cx="80" cy="65" rx="36" ry="38" fill="#fce7f3"/>
-                            <circle cx="68" cy="62" r="5" fill="#0f172a"/>
-                            <circle cx="92" cy="62" r="5" fill="#0f172a"/>
-                            <path d="M72 78 Q80 88 88 78" stroke="#e11d48" stroke-width="3.5" fill="none"/>
-                            <path d="M44 54 Q48 24 80 20 Q112 24 116 54 Q104 40 80 40 Q56 40 44 54 Z" fill="#1e1b4b"/>
-                            <!-- Collar & Tie -->
-                            <polygon points="56,110 80,132 104,110" fill="#ffffff"/>
-                            <polygon points="76,122 84,122 86,155 80,160 74,155" fill="#047857"/>
-                        </svg>
+                <!-- 3D Student Mascot Avatar Frame -->
+                <div class="relative w-11 h-11 rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 p-0.5 shadow-md shrink-0">
+                    <div class="w-full h-full rounded-[14px] overflow-hidden bg-slate-900">
+                        <img
+                            src="/images/student_mascot.jpg"
+                            alt="Malar AI Student Avatar"
+                            class="w-full h-full object-cover object-top"
+                        />
                     </div>
                 </div>
 
                 <div>
                     <div class="flex items-center gap-2">
                         <h4 class="font-extrabold text-sm tracking-wide">Malar AI Co-Pilot</h4>
-                        <span class="text-[9px] bg-emerald-500/30 text-emerald-200 px-1.5 py-0.5 rounded font-mono font-bold">Student Mascot</span>
+                        <span class="text-[9px] bg-emerald-500/30 text-emerald-200 px-1.5 py-0.5 rounded font-mono font-bold">Student Guide</span>
                     </div>
                     <p class="text-[11px] text-emerald-200/80 flex items-center gap-1.5">
                         <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
@@ -197,7 +96,7 @@
                     type="button"
                     @click="toggleLang()"
                     class="px-2.5 py-1 rounded-xl text-[10px] font-extrabold transition cursor-pointer border flex items-center gap-1"
-                    :class="lang === 'ta-IN' ? 'bg-amber-400 text-slate-900 border-amber-300' : 'bg-white/10 text-emerald-100 border-white/20 hover:bg-white/20'"
+                    :class="lang === 'ta-IN' ? 'bg-amber-400 text-slate-900 border-amber-300 shadow-xs' : 'bg-white/10 text-emerald-100 border-white/20 hover:bg-white/20'"
                     :title="'Current Speech Recognition: ' + (lang === 'ta-IN' ? 'Tamil (தமிழ்)' : 'English (Indian)')"
                 >
                     <span x-text="lang === 'ta-IN' ? '🇮🇳 தமிழ்' : '🇬🇧 English'"></span>
@@ -250,8 +149,8 @@
             <template x-for="(msg, i) in messages" :key="i">
                 <div :class="msg.sender === 'user' ? 'flex justify-end' : 'flex justify-start gap-2.5'">
                     <template x-if="msg.sender === 'ai'">
-                        <div class="w-7 h-7 rounded-xl bg-emerald-700 text-white flex items-center justify-center font-bold text-[10px] shrink-0 mt-0.5 shadow-sm">
-                            AI
+                        <div class="w-7 h-7 rounded-xl overflow-hidden shadow-sm shrink-0 mt-0.5 border border-emerald-600">
+                            <img src="/images/student_mascot.jpg" alt="Malar" class="w-full h-full object-cover object-top" />
                         </div>
                     </template>
                     <div
@@ -339,68 +238,10 @@
 </div>
 
 <style>
-/* 3D Turntable Continuous 360 Rotation & Walking Animations */
-@keyframes turntableOrbit {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
-@keyframes mascotBobWalk {
-    0%, 100% { transform: translateY(0px) rotate(0deg); }
-    25% { transform: translateY(-3px) rotate(-1.5deg); }
-    50% { transform: translateY(0px) rotate(0deg); }
-    75% { transform: translateY(-3px) rotate(1.5deg); }
-}
-
-@keyframes mascotWavingHand {
-    0%, 100% { transform: rotate(0deg); transform-origin: 112px 78px; }
-    25% { transform: rotate(-18deg); transform-origin: 112px 78px; }
-    75% { transform: rotate(18deg); transform-origin: 112px 78px; }
-}
-
-@keyframes legStepLeft {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-4px); }
-}
-
-@keyframes legStepRight {
-    0%, 100% { transform: translateY(-4px); }
-    50% { transform: translateY(0); }
-}
-
-@keyframes eyesBlink {
-    0%, 90%, 100% { transform: scaleY(1); transform-origin: center; }
-    95% { transform: scaleY(0.1); transform-origin: center; }
-}
-
 @keyframes soundwaveAnim1 { 0%, 100% { height: 6px; } 50% { height: 18px; } }
 @keyframes soundwaveAnim2 { 0%, 100% { height: 16px; } 50% { height: 8px; } }
 @keyframes soundwaveAnim3 { 0%, 100% { height: 10px; } 50% { height: 20px; } }
 @keyframes soundwaveAnim4 { 0%, 100% { height: 14px; } 50% { height: 6px; } }
-
-.avatar-turntable-base {
-    animation: turntableOrbit 8s linear infinite;
-}
-
-.student-mascot-svg {
-    animation: mascotBobWalk 3.2s ease-in-out infinite;
-}
-
-.right-arm-waving {
-    animation: mascotWavingHand 1.6s ease-in-out infinite;
-}
-
-.left-leg {
-    animation: legStepLeft 1.6s ease-in-out infinite;
-}
-
-.right-leg {
-    animation: legStepRight 1.6s ease-in-out infinite;
-}
-
-.mascot-eyes {
-    animation: eyesBlink 4s ease-in-out infinite;
-}
 
 .animate-soundwave-1 { animation: soundwaveAnim1 0.6s ease-in-out infinite; }
 .animate-soundwave-2 { animation: soundwaveAnim2 0.7s ease-in-out infinite; }
@@ -421,7 +262,7 @@ function aiCampusMascot() {
         messages: [
             {
                 sender: 'ai',
-                text: 'Vanakkam! I am Malar, your AI Campus Mascot & Co-Pilot for Test Subject Higher Secondary School. \n\nYou can speak with me in Tamil (தமிழ்) or English, or ask about attendance %, timetable, fees, or campus navigation. Tap the mic to speak!'
+                text: 'Vanakkam! I am Malar, your Student Mascot & AI Campus Co-Pilot for Test Subject Higher Secondary School. \n\nYou can speak with me in Tamil (தமிழ்) or English, or ask about attendance %, timetable, fees, or campus navigation. Tap the mic to speak!'
             }
         ],
         init() {
@@ -518,7 +359,6 @@ function aiCampusMascot() {
             if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
                 try {
                     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                    // Close test stream immediately
                     stream.getTracks().forEach(track => track.stop());
                 } catch (micErr) {
                     console.warn('Microphone permission request error:', micErr);

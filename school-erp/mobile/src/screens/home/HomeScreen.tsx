@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   RefreshControl,
   ActivityIndicator,
+  Image,
 } from 'react-native';
 import { Colors } from '../../theme/colors';
 import { useAuth } from '../../context/AuthContext';
@@ -110,7 +111,10 @@ export const HomeScreen: React.FC<{ navigation?: any }> = ({ navigation }) => {
       >
         <View style={styles.aiBannerLeft}>
           <View style={styles.aiIconBadge}>
-            <Sparkles size={22} color="#F59E0B" />
+            <Image
+              source={require('../../../assets/student_mascot.jpg')}
+              style={{ width: '100%', height: '100%', borderRadius: 12 }}
+            />
           </View>
           <View style={{ flex: 1 }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>

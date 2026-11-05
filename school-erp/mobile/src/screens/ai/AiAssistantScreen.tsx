@@ -10,6 +10,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   Animated,
+  Image,
 } from 'react-native';
 import {
   Mic,
@@ -35,6 +36,8 @@ interface Message {
   target_screen?: string;
   quick_chips?: string[];
 }
+
+const StudentMascotImg = require('../../../assets/student_mascot.jpg');
 
 export const AiAssistantScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
   const [messages, setMessages] = useState<Message[]>([
@@ -270,16 +273,13 @@ export const AiAssistantScreen: React.FC<{ navigation: any }> = ({ navigation })
         <View style={styles.bannerLeft}>
           <Animated.View style={[styles.mascotAvatarWrapper, { transform: [{ translateY: bobAnim }] }]}>
             <View style={styles.mascotCrestBorder}>
-              <View style={styles.mascotInnerBadge}>
-                {/* 3D Student Mascot Emblem */}
-                <Text style={styles.mascotLetter}>TS</Text>
-              </View>
+              <Image source={StudentMascotImg} style={styles.mascotImg} />
             </View>
           </Animated.View>
           <View>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
               <Text style={styles.bannerTitle}>Malar AI Co-Pilot</Text>
-              <View style={styles.mascotBadge}><Text style={styles.mascotBadgeText}>STUDENT MASCOT</Text></View>
+              <View style={styles.mascotBadge}><Text style={styles.mascotBadgeText}>STUDENT GUIDE</Text></View>
             </View>
             <Text style={styles.bannerSubtitle}>Voice Recognition & Smart Campus Guide</Text>
           </View>
@@ -321,7 +321,7 @@ export const AiAssistantScreen: React.FC<{ navigation: any }> = ({ navigation })
           >
             {msg.sender === 'ai' && (
               <View style={styles.aiAvatar}>
-                <Bot size={16} color="#ffffff" />
+                <Image source={StudentMascotImg} style={{ width: 28, height: 28, borderRadius: 14 }} />
               </View>
             )}
 
@@ -453,24 +453,18 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   mascotCrestBorder: {
-    width: 40,
-    height: 40,
+    width: 42,
+    height: 42,
     borderRadius: 14,
     backgroundColor: '#F59E0B',
     padding: 2,
     elevation: 3,
+    overflow: 'hidden',
   },
-  mascotInnerBadge: {
-    flex: 1,
-    backgroundColor: '#022C22',
+  mascotImg: {
+    width: '100%',
+    height: '100%',
     borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  mascotLetter: {
-    color: '#F59E0B',
-    fontWeight: '900',
-    fontSize: 16,
   },
   bannerTitle: {
     fontSize: 15,

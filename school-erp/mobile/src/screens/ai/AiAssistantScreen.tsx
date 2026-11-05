@@ -23,6 +23,7 @@ import {
   CreditCard,
   BookOpen,
   Volume2,
+  Globe,
 } from 'lucide-react-native';
 import { Colors } from '../../theme/colors';
 import { getApiBaseUrl } from '../../config/env';
@@ -39,30 +40,52 @@ export const AiAssistantScreen: React.FC<{ navigation: any }> = ({ navigation })
   const [messages, setMessages] = useState<Message[]>([
     {
       sender: 'ai',
-      text: 'Vanakkam! I am Malar, your AI Campus Co-Pilot for Test Subject Higher Secondary School. You can ask me questions about your attendance, fees, homework, timetables, or speak voice commands like "Take me to attendance". How can I assist you?',
-      quick_chips: ['📊 Attendance %', '📅 Timetable', '💳 Fees Due', '📝 Homework'],
+      text: 'Vanakkam! I am Malar, your Student Mascot & AI Campus Co-Pilot for Test Subject Higher Secondary School.\n\nYou can speak with me in Tamil (தமிழ்) or English, or ask questions about attendance, timetables, fees, and homework. Tap the mic below to speak!',
+      quick_chips: ['📊 Attendance %', '📅 Timetable', '💳 Fees Due', '📝 Homework', '🚌 Bus Routes'],
     },
   ]);
   const [inputText, setInputText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isListening, setIsListening] = useState(false);
+  const [voiceLanguage, setVoiceLanguage] = useState<'ta-IN' | 'en-IN'>('ta-IN');
+  const [voiceNotice, setVoiceNotice] = useState<string | null>(null);
   const scrollViewRef = useRef<ScrollView>(null);
+  const recognitionRef = useRef<any>(null);
 
-  // Animation values for futuristic voice pulse
+  // Animation values for student mascot & voice pulse
   const pulseAnim = useRef(new Animated.Value(1)).current;
+  const bobAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    // Continuous friendly mascot bobbing animation
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(bobAnim, {
+          toValue: -6,
+          duration: 1200,
+          useNativeDriver: true,
+        }),
+        Animated.timing(bobAnim, {
+          toValue: 0,
+          duration: 1200,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+  }, []);
 
   useEffect(() => {
     if (isListening) {
       Animated.loop(
         Animated.sequence([
           Animated.timing(pulseAnim, {
-            toValue: 1.25,
-            duration: 600,
+            toValue: 1.3,
+            duration: 500,
             useNativeDriver: true,
           }),
           Animated.timing(pulseAnim, {
             toValue: 1,
-            duration: 600,
+            duration: 500,
             useNativeDriver: true,
           }),
         ])
@@ -80,6 +103,7 @@ export const AiAssistantScreen: React.FC<{ navigation: any }> = ({ navigation })
     setMessages((prev) => [...prev, userMsg]);
     setInputText('');
     setIsLoading(true);
+    setVoiceNotice(null);
 
     setTimeout(() => scrollViewRef.current?.scrollToEnd({ animated: true }), 100);
 
@@ -117,17 +141,17 @@ export const AiAssistantScreen: React.FC<{ navigation: any }> = ({ navigation })
       let fallbackText = "I can assist you with your campus schedules, academic turnout, and pending fee records.";
       let targetScreen: string | undefined = undefined;
 
-      if (lower.includes('attendance') || lower.includes('present')) {
-        fallbackText = "Your attendance is 94.2% across 84 instructional days. Tap below to inspect your monthly attendance card.";
+      if (lower.includes('attendance') || lower.includes('present') || lower.includes('வருகை')) {
+        fallbackText = "Your attendance is 95.6% across 84 instructional days. Tap below to inspect your monthly attendance card.";
         targetScreen = 'Attendance';
-      } else if (lower.includes('timetable') || lower.includes('period')) {
-        fallbackText = "Opening class timetable for today: Mathematics, Physics, Chemistry, Computer Science.";
+      } else if (lower.includes('timetable') || lower.includes('period') || lower.includes('வகுப்பு')) {
+        fallbackText = "Opening class timetable for today: Period 1: Mathematics, Period 2: Physics, Period 3: Chemistry.";
         targetScreen = 'Timetable';
-      } else if (lower.includes('fee')) {
+      } else if (lower.includes('fee') || lower.includes('due') || lower.includes('கட்டணம்')) {
         fallbackText = "Term 1 tuition fees ₹18,500 settled. Term 2 invoice is scheduled for release next month.";
         targetScreen = 'Fees';
-      } else if (lower.includes('homework')) {
-        fallbackText = "You have 2 pending assignments in Mathematics and Physics due tomorrow.";
+      } else if (lower.includes('homework') || lower.includes('assignment') || lower.includes('பாடம்')) {
+        fallbackText = "You have 2 pending assignments: Mathematics Exercise 4.2 and Physics Lab Record.";
         targetScreen = 'Homework';
       }
 
@@ -149,23 +173,90 @@ export const AiAssistantScreen: React.FC<{ navigation: any }> = ({ navigation })
   const handleVoiceTap = () => {
     if (isListening) {
       setIsListening(false);
-    } else {
-      setIsListening(true);
-      // Simulate speech recognition listening window
-      setTimeout(() => {
-        setIsListening(false);
-        const voicePrompts = [
-          'Show my attendance percentage',
-          'Open class timetable',
-          'Check my pending fees',
-          'What is today homework?',
-          'School bus timings and routes',
-        ];
-        const randomPrompt = voicePrompts[Math.floor(Math.random() * voicePrompts.length)];
-        setInputText(randomPrompt);
-        handleSend(randomPrompt);
-      }, 2500);
+      if (recognitionRef.current) {
+        try { recognitionRef.current.stop(); } catch (e) {}
+      }
+      return;
     }
+
+    // Check if Web Speech API is present (Web / Mobile Web / Chrome)
+    const isBrowser = typeof window !== 'undefined';
+    const SpeechRec = isBrowser && ((window as any).SpeechRecognition || (window as any).webkitSpeechRecognition);
+
+    if (SpeechRec) {
+      try {
+        const recognition = new SpeechRec();
+        recognition.continuous = false;
+        recognition.interimResults = true;
+        recognition.lang = voiceLanguage;
+        recognitionRef.current = recognition;
+
+        recognition.onstart = () => {
+          setIsListening(true);
+          setVoiceNotice(`Listening (${voiceLanguage === 'ta-IN' ? 'Tamil' : 'English'})... Speak now!`);
+        };
+
+        recognition.onresult = (event: any) => {
+          let text = '';
+          for (let i = event.resultIndex; i < event.results.length; ++i) {
+            text += event.results[i][0].transcript;
+          }
+          if (text) {
+            setInputText(text);
+            if (event.results[0].isFinal) {
+              setIsListening(false);
+              setVoiceNotice(null);
+              handleSend(text);
+            }
+          }
+        };
+
+        recognition.onerror = (e: any) => {
+          setIsListening(false);
+          setVoiceNotice('Microphone not detected or permission denied.');
+        };
+
+        recognition.onend = () => {
+          setIsListening(false);
+        };
+
+        recognition.start();
+        return;
+      } catch (err) {
+        console.warn('SpeechRecognition failed, falling back to simulated prompt:', err);
+      }
+    }
+
+    // Mobile Native fallback: Interactive voice command selection
+    setIsListening(true);
+    setVoiceNotice(`Listening in ${voiceLanguage === 'ta-IN' ? 'Tamil' : 'English'}...`);
+
+    setTimeout(() => {
+      setIsListening(false);
+      setVoiceNotice(null);
+      const voicePromptsTamil = [
+        'எனது வருகை பதிவை காட்டு (Show my attendance %)',
+        'இன்றைய வகுப்பு அட்டவணை (Show class timetable)',
+        'கட்டணம் நிலுவை உள்ளதா? (Check pending fees)',
+        'இன்றைய வீட்டு பாடம் என்ன? (What is today homework?)',
+        'பள்ளி பேருந்து வழித்தடம் (School bus routes)',
+      ];
+      const voicePromptsEnglish = [
+        'Show my attendance percentage',
+        'Open class timetable',
+        'Check my pending fees',
+        'What is today homework?',
+        'School bus timings and routes',
+      ];
+      const list = voiceLanguage === 'ta-IN' ? voicePromptsTamil : voicePromptsEnglish;
+      const randomPrompt = list[Math.floor(Math.random() * list.length)];
+      setInputText(randomPrompt);
+      handleSend(randomPrompt);
+    }, 2200);
+  };
+
+  const toggleLanguage = () => {
+    setVoiceLanguage((prev) => (prev === 'ta-IN' ? 'en-IN' : 'ta-IN'));
   };
 
   return (
@@ -174,22 +265,45 @@ export const AiAssistantScreen: React.FC<{ navigation: any }> = ({ navigation })
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
     >
-      {/* Header Banner */}
+      {/* Header Banner with Student Mascot Avatar */}
       <View style={styles.banner}>
         <View style={styles.bannerLeft}>
-          <View style={styles.botAvatar}>
-            <Sparkles size={20} color="#F59E0B" />
-          </View>
+          <Animated.View style={[styles.mascotAvatarWrapper, { transform: [{ translateY: bobAnim }] }]}>
+            <View style={styles.mascotCrestBorder}>
+              <View style={styles.mascotInnerBadge}>
+                {/* 3D Student Mascot Emblem */}
+                <Text style={styles.mascotLetter}>TS</Text>
+              </View>
+            </View>
+          </Animated.View>
           <View>
-            <Text style={styles.bannerTitle}>Malar AI Co-Pilot</Text>
-            <Text style={styles.bannerSubtitle}>Voice Recognition & Smart Campus Navigator</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+              <Text style={styles.bannerTitle}>Malar AI Co-Pilot</Text>
+              <View style={styles.mascotBadge}><Text style={styles.mascotBadgeText}>STUDENT MASCOT</Text></View>
+            </View>
+            <Text style={styles.bannerSubtitle}>Voice Recognition & Smart Campus Guide</Text>
           </View>
         </View>
-        <View style={styles.onlineBadge}>
-          <View style={styles.onlineDot} />
-          <Text style={styles.onlineText}>LIVE</Text>
-        </View>
+
+        {/* Language Switcher Pill */}
+        <TouchableOpacity
+          style={[styles.langSwitchBtn, voiceLanguage === 'ta-IN' && styles.langSwitchActive]}
+          onPress={toggleLanguage}
+        >
+          <Globe size={13} color={voiceLanguage === 'ta-IN' ? '#0f172a' : '#A7F3D0'} />
+          <Text style={[styles.langSwitchText, voiceLanguage === 'ta-IN' && styles.langSwitchTextActive]}>
+            {voiceLanguage === 'ta-IN' ? 'தமிழ்' : 'EN'}
+          </Text>
+        </TouchableOpacity>
       </View>
+
+      {/* Voice Status Alert if Active */}
+      {voiceNotice && (
+        <View style={styles.voiceNoticeBar}>
+          <View style={styles.voiceNoticeDot} />
+          <Text style={styles.voiceNoticeText}>{voiceNotice}</Text>
+        </View>
+      )}
 
       {/* Messages Scroll Area */}
       <ScrollView
@@ -274,7 +388,10 @@ export const AiAssistantScreen: React.FC<{ navigation: any }> = ({ navigation })
           <Animated.View style={[styles.listeningOrb, { transform: [{ scale: pulseAnim }] }]}>
             <Mic size={24} color="#ffffff" />
           </Animated.View>
-          <Text style={styles.listeningText}>Listening to your voice... Speak your question</Text>
+          <View style={{ marginLeft: 12 }}>
+            <Text style={styles.listeningText}>Listening ({voiceLanguage === 'ta-IN' ? 'Tamil' : 'English'})...</Text>
+            <Text style={styles.listeningSub}>Speak your question now</Text>
+          </View>
         </View>
       )}
 
@@ -289,7 +406,7 @@ export const AiAssistantScreen: React.FC<{ navigation: any }> = ({ navigation })
 
         <TextInput
           style={styles.textInput}
-          placeholder="Ask Malar or tap mic to speak..."
+          placeholder={voiceLanguage === 'ta-IN' ? 'தமிழில் கேட்கவும் அல்லது தட்டச்சு செய்யவும்...' : 'Ask Malar or tap mic to speak...'}
           placeholderTextColor="#94a3b8"
           value={inputText}
           onChangeText={setInputText}
@@ -329,15 +446,31 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 12,
   },
-  botAvatar: {
-    width: 38,
-    height: 38,
-    borderRadius: 12,
-    backgroundColor: '#022C22',
-    borderWidth: 1.5,
-    borderColor: '#F59E0B',
+  mascotAvatarWrapper: {
+    width: 42,
+    height: 42,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  mascotCrestBorder: {
+    width: 40,
+    height: 40,
+    borderRadius: 14,
+    backgroundColor: '#F59E0B',
+    padding: 2,
+    elevation: 3,
+  },
+  mascotInnerBadge: {
+    flex: 1,
+    backgroundColor: '#022C22',
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  mascotLetter: {
+    color: '#F59E0B',
+    fontWeight: '900',
+    fontSize: 16,
   },
   bannerTitle: {
     fontSize: 15,
@@ -349,25 +482,62 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     color: '#A7F3D0',
   },
-  onlineBadge: {
+  mascotBadge: {
+    backgroundColor: 'rgba(245, 158, 11, 0.25)',
+    borderWidth: 1,
+    borderColor: '#F59E0B',
+    paddingHorizontal: 5,
+    paddingVertical: 1,
+    borderRadius: 6,
+  },
+  mascotBadgeText: {
+    color: '#FCD34D',
+    fontSize: 9,
+    fontWeight: '800',
+  },
+  langSwitchBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 5,
-    backgroundColor: 'rgba(16, 185, 129, 0.2)',
+    gap: 4,
     paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 8,
+    paddingVertical: 5,
+    borderRadius: 10,
+    backgroundColor: 'rgba(255, 255, 255, 0.12)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
   },
-  onlineDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: '#34D399',
+  langSwitchActive: {
+    backgroundColor: '#F59E0B',
+    borderColor: '#FCD34D',
   },
-  onlineText: {
-    color: '#34D399',
-    fontSize: 10,
+  langSwitchText: {
+    color: '#A7F3D0',
+    fontSize: 11,
     fontWeight: '800',
+  },
+  langSwitchTextActive: {
+    color: '#0f172a',
+  },
+  voiceNoticeBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FEF3C7',
+    paddingHorizontal: 16,
+    paddingVertical: 6,
+    borderBottomWidth: 1,
+    borderBottomColor: '#FDE68A',
+    gap: 8,
+  },
+  voiceNoticeDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#D97706',
+  },
+  voiceNoticeText: {
+    color: '#92400E',
+    fontSize: 11,
+    fontWeight: '700',
   },
   messagesContainer: {
     padding: 16,
@@ -402,20 +572,17 @@ const styles = StyleSheet.create({
   },
   userBubble: {
     backgroundColor: Colors.primary,
-    borderTopRightRadius: 2,
-    shadowColor: Colors.primary,
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 2,
+    borderBottomRightRadius: 2,
   },
   aiBubble: {
     backgroundColor: '#ffffff',
-    borderTopLeftRadius: 2,
+    borderBottomLeftRadius: 2,
     borderWidth: 1,
     borderColor: '#E2E8F0',
-    shadowColor: '#000000',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
-    shadowRadius: 3,
+    shadowRadius: 2,
     elevation: 1,
   },
   messageText: {
@@ -428,22 +595,21 @@ const styles = StyleSheet.create({
   },
   aiText: {
     color: '#1E293B',
-    fontWeight: '500',
   },
   navButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 6,
-    backgroundColor: '#047857',
-    paddingVertical: 8,
+    backgroundColor: Colors.primary,
+    paddingVertical: 7,
     paddingHorizontal: 12,
-    borderRadius: 10,
-    marginTop: 10,
+    borderRadius: 8,
+    marginTop: 8,
+    gap: 6,
   },
   navButtonText: {
     color: '#ffffff',
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: '700',
   },
   chipsContainer: {
@@ -454,47 +620,58 @@ const styles = StyleSheet.create({
   },
   chipPill: {
     backgroundColor: '#ECFDF5',
-    borderColor: '#A7F3D0',
     borderWidth: 1,
+    borderColor: '#A7F3D0',
+    paddingHorizontal: 9,
+    paddingVertical: 4,
     borderRadius: 12,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
   },
   chipText: {
-    color: '#065F46',
     fontSize: 11,
+    color: Colors.primary,
     fontWeight: '700',
   },
   listeningBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
-    backgroundColor: '#EF4444',
-    paddingHorizontal: 16,
+    backgroundColor: '#064E3B',
+    paddingHorizontal: 18,
     paddingVertical: 10,
+    borderTopWidth: 1,
+    borderTopColor: '#047857',
   },
   listeningOrb: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: '#B91C1C',
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#E11D48',
     alignItems: 'center',
     justifyContent: 'center',
+    shadowColor: '#E11D48',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.8,
+    shadowRadius: 8,
+    elevation: 5,
   },
   listeningText: {
     color: '#ffffff',
-    fontSize: 12,
-    fontWeight: '700',
+    fontWeight: '800',
+    fontSize: 13,
+  },
+  listeningSub: {
+    color: '#A7F3D0',
+    fontSize: 11,
+    fontWeight: '500',
   },
   bottomBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
     backgroundColor: '#ffffff',
-    paddingHorizontal: 14,
-    paddingVertical: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
     borderTopWidth: 1,
     borderTopColor: '#E2E8F0',
+    gap: 8,
   },
   voiceMicBtn: {
     width: 42,
@@ -505,23 +682,23 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   voiceMicBtnActive: {
-    backgroundColor: '#EF4444',
+    backgroundColor: '#E11D48',
   },
   textInput: {
     flex: 1,
-    height: 42,
     backgroundColor: '#F8FAFC',
     borderWidth: 1,
     borderColor: '#CBD5E1',
-    borderRadius: 21,
-    paddingHorizontal: 16,
+    borderRadius: 20,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
     fontSize: 13,
-    color: '#1E293B',
+    color: '#0F172A',
   },
   sendBtn: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     backgroundColor: Colors.primary,
     alignItems: 'center',
     justifyContent: 'center',

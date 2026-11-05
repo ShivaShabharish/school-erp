@@ -114,10 +114,10 @@ export const HomeScreen: React.FC<{ navigation?: any }> = ({ navigation }) => {
           </View>
           <View style={{ flex: 1 }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-              <Text style={styles.aiTitle}>Malar AI Voice Co-Pilot</Text>
-              <View style={styles.aiLiveBadge}><Text style={styles.aiLiveText}>VOICE AI</Text></View>
+              <Text style={styles.aiTitle}>Malar Student Mascot</Text>
+              <View style={styles.aiLiveBadge}><Text style={styles.aiLiveText}>AI VOICE</Text></View>
             </View>
-            <Text style={styles.aiSubtitle}>Speak or ask attendance, fees & timetable</Text>
+            <Text style={styles.aiSubtitle}>Tap to speak in Tamil / English with Malar</Text>
           </View>
         </View>
         <View style={styles.aiMicCircle}>

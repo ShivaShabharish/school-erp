@@ -3,6 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Sign In | Test Subject Higher Secondary School ERP</title>
 
     <script>
@@ -203,6 +204,9 @@
 
     <!-- Toast Notification Container -->
     <x-toast />
+
+    <!-- Futuristic AI Campus Co-Pilot (Voice & Chat with 3D Student Mascot) -->
+    @include('components.ai-assistant')
 
 </body>
 </html>

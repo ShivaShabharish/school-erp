@@ -179,12 +179,52 @@
 
                     <a
                         href="{{ route('admin.academics.timetables.index') }}"
-                        class="flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-semibold transition-colors {{ request()->routeIs('admin.academics.*') ? 'bg-emerald-700 text-white shadow-xs' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}"
+                        class="flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-semibold transition-colors {{ (request()->routeIs('admin.academics.timetables*') || request()->routeIs('admin.academics.exams*') || request()->routeIs('admin.academics.homework*') || request()->routeIs('admin.academics.student-attendance*')) ? 'bg-emerald-700 text-white shadow-xs' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}"
                     >
                         <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                         </svg>
                         Academics & Timetables
+                    </a>
+
+                    <a
+                        href="{{ route('admin.academics.report-cards.index') }}"
+                        class="flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-semibold transition-colors {{ request()->routeIs('admin.academics.report-cards*') ? 'bg-emerald-700 text-white shadow-xs' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}"
+                    >
+                        <svg class="h-4 w-4 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        AI Report Cards (CCE)
+                    </a>
+
+                    <a
+                        href="{{ route('admin.academics.question-paper-generator.index') }}"
+                        class="flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-semibold transition-colors {{ request()->routeIs('admin.academics.question-paper-generator*') ? 'bg-emerald-700 text-white shadow-xs' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}"
+                    >
+                        <svg class="h-4 w-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                        AI Question Generator
+                    </a>
+
+                    <a
+                        href="{{ route('admin.communication.whatsapp.index') }}"
+                        class="flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-semibold transition-colors {{ request()->routeIs('admin.communication.whatsapp*') ? 'bg-emerald-700 text-white shadow-xs' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}"
+                    >
+                        <svg class="h-4 w-4 text-emerald-400" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.598 2.669-.699c.969.529 1.782.78 2.79.78h.001c3.181 0 5.767-2.586 5.768-5.766 0-3.18-2.587-5.766-5.768-5.766zm9.969 5.768c0 5.514-4.486 10-10 10-1.745 0-3.385-.45-4.823-1.237L2 22l1.503-5.111C2.658 15.428 2 13.633 2 11.94 2 6.426 6.486 1.94 12 1.94s10 4.486 10 10z"/>
+                        </svg>
+                        WhatsApp Alert Engine
+                    </a>
+
+                    <a
+                        href="{{ route('admin.transport.bus-tracker.index') }}"
+                        class="flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-semibold transition-colors {{ request()->routeIs('admin.transport.bus-tracker*') ? 'bg-emerald-700 text-white shadow-xs' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}"
+                    >
+                        <svg class="h-4 w-4 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                        </svg>
+                        Live Bus GPS Tracker
                     </a>
 
                     <a

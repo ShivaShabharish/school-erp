@@ -129,6 +129,18 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/academics/student-attendance', [\App\Http\Controllers\Academics\StudentAttendanceController::class, 'index'])->name('academics.student-attendance.index');
     Route::post('/academics/student-attendance', [\App\Http\Controllers\Academics\StudentAttendanceController::class, 'record'])->name('academics.student-attendance.record');
 
+    // Super Features: 1-Click AI Report Cards & Exam Question Paper Generator
+    Route::get('/academics/report-cards', [\App\Http\Controllers\Admin\ReportCardController::class, 'index'])->name('academics.report-cards.index');
+    Route::post('/academics/report-cards/generate-remarks', [\App\Http\Controllers\Admin\ReportCardController::class, 'generateAiRemarks'])->name('academics.report-cards.generate-remarks');
+    Route::get('/academics/question-paper-generator', [\App\Http\Controllers\Admin\QuestionPaperGeneratorController::class, 'index'])->name('academics.question-paper-generator.index');
+    Route::post('/academics/question-paper-generator/generate', [\App\Http\Controllers\Admin\QuestionPaperGeneratorController::class, 'generate'])->name('academics.question-paper-generator.generate');
+
+    // Super Feature: Live School Bus GPS Fleet Tracker
+    Route::prefix('transport')->name('transport.')->group(function () {
+        Route::get('/bus-tracker', [\App\Http\Controllers\Admin\BusTrackerController::class, 'index'])->name('bus-tracker.index');
+        Route::get('/bus-tracker/live', [\App\Http\Controllers\Admin\BusTrackerController::class, 'liveFleetData'])->name('bus-tracker.live');
+    });
+
     // Phase 7: Communication & Records
     Route::prefix('communication')->name('communication.')->group(function () {
         // School Calendar & Holidays
@@ -158,6 +170,9 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
         Route::get('/id-cards', [\App\Http\Controllers\Communication\IdCardController::class, 'index'])->name('id-cards.index');
         Route::get('/id-cards/print/students', [\App\Http\Controllers\Communication\IdCardController::class, 'printStudents'])->name('id-cards.print-students');
         Route::get('/id-cards/print/staff', [\App\Http\Controllers\Communication\IdCardController::class, 'printStaff'])->name('id-cards.print-staff');
+
+        // Super Feature: Automated 1-Tap WhatsApp Alert & Fee Recovery Engine
+        Route::get('/whatsapp', [\App\Http\Controllers\Admin\WhatsAppCommunicationController::class, 'index'])->name('whatsapp.index');
     });
 
     // Phase 8: Settings & Safety

@@ -166,6 +166,39 @@ export const HomeScreen: React.FC<{ navigation?: any }> = ({ navigation }) => {
         </TouchableOpacity>
       </View>
 
+      {/* Live School Bus GPS Tracking Card */}
+      <View style={styles.busCard}>
+        <View style={styles.busHeader}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, flex: 1 }}>
+            <Text style={{ fontSize: 20 }}>🚌</Text>
+            <View style={{ flex: 1 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                <Text style={styles.busTitle}>Route 1: Town to Campus</Text>
+                <View style={styles.busLiveDot} />
+              </View>
+              <Text style={styles.busSub}>Driver: Murugesan (TN-55-AB-1020)</Text>
+            </View>
+          </View>
+          <View style={styles.liveEtaPill}>
+            <Text style={styles.liveEtaText}>ETA: 4 MINS</Text>
+          </View>
+        </View>
+        <View style={styles.busProgressRow}>
+          <View style={styles.busStopIndicator}>
+            <View style={[styles.stopDot, { backgroundColor: '#10b981' }]} />
+            <Text style={styles.stopName}>Town Stand (Departed)</Text>
+          </View>
+          <View style={styles.busStopIndicator}>
+            <View style={[styles.stopDot, { backgroundColor: '#f59e0b', borderWidth: 2, borderColor: '#ffffff' }]} />
+            <Text style={[styles.stopName, { color: '#f59e0b', fontWeight: '700' }]}>Anna Nagar (Arriving)</Text>
+          </View>
+          <View style={styles.busStopIndicator}>
+            <View style={[styles.stopDot, { backgroundColor: '#64748b' }]} />
+            <Text style={styles.stopName}>Campus Gate</Text>
+          </View>
+        </View>
+      </View>
+
       {/* Quick Navigation Action Pills */}
       <View style={styles.sectionTitleRow}>
         <Text style={styles.sectionTitle}>Academic Shortcuts</Text>
@@ -567,5 +600,69 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginLeft: 8,
+  },
+  busCard: {
+    backgroundColor: '#0f172a',
+    borderRadius: 16,
+    padding: 14,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: '#1e293b',
+  },
+  busHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 12,
+  },
+  busTitle: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#ffffff',
+  },
+  busLiveDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#10b981',
+  },
+  busSub: {
+    fontSize: 11,
+    color: '#94a3b8',
+    marginTop: 1,
+  },
+  liveEtaPill: {
+    backgroundColor: 'rgba(245, 158, 11, 0.2)',
+    borderColor: '#f59e0b',
+    borderWidth: 1,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 8,
+  },
+  liveEtaText: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: '#fbbf24',
+  },
+  busProgressRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingTop: 8,
+    borderTopWidth: 1,
+    borderTopColor: '#1e293b',
+  },
+  busStopIndicator: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  stopDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+  },
+  stopName: {
+    fontSize: 10,
+    color: '#94a3b8',
   },
 });

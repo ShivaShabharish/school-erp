@@ -31,6 +31,9 @@ Route::prefix('v1')->group(function () {
     // AI Campus Assistant (Voice & Chat Co-Pilot)
     Route::post('/ai/assistant', [\App\Http\Controllers\Api\V1\AiAssistantController::class, 'query'])->name('api.v1.ai.assistant');
 
+    // Live Bus GPS Fleet Tracker API (Available for Web & Mobile Co-Pilot)
+    Route::get('/transport/bus-tracker/live', [\App\Http\Controllers\Admin\BusTrackerController::class, 'liveFleetData'])->name('api.v1.transport.bus-tracker.live');
+
     // Mobile App REST API Gateway (Guarded by EnsureApiEnabled switch)
     Route::middleware([EnsureApiEnabled::class])->group(function () {
         // Auth

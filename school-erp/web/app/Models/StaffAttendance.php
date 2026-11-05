@@ -22,8 +22,15 @@ class StaffAttendance extends Model
     protected function casts(): array
     {
         return [
-            'date' => 'date',
+            'date' => 'date:Y-m-d',
         ];
+    }
+
+    public function setDateAttribute($value): void
+    {
+        $this->attributes['date'] = $value instanceof \DateTimeInterface
+            ? $value->format('Y-m-d')
+            : substr((string)$value, 0, 10);
     }
 
     public function staff(): BelongsTo

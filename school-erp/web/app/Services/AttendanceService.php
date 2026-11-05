@@ -31,12 +31,16 @@ class AttendanceService
         $timeStr = $punchTime->format('H:i:s');
 
         return DB::transaction(function () use ($staff, $deviceId, $date, $timeStr, $punchTime) {
-            $attendance = StaffAttendance::firstOrNew([
-                'staff_id' => $staff->id,
-                'date' => $date,
-            ]);
+            // Find existing attendance record (handling both YYYY-MM-DD and YYYY-MM-DD 00:00:00 SQLite representations)
+            $attendance = StaffAttendance::where('staff_id', $staff->id)
+                ->where(function ($q) use ($date) {
+                    $q->where('date', $date)
+                      ->orWhere('date', 'LIKE', $date . '%')
+                      ->orWhereDate('date', $date);
+                })
+                ->first();
 
-            $isFirstPunch = !$attendance->exists || empty($attendance->punch_in_time);
+            $isFirstPunch = !$attendance || empty($attendance->punch_in_time);
             $action = 'punch_in';
 
             if ($isFirstPunch) {
@@ -44,12 +48,28 @@ class AttendanceService
                 $cutoff = Carbon::parse($date . ' 08:30:00');
                 $status = $punchTime->lte($cutoff) ? 'present' : 'late';
 
-                $attendance->punch_in_time = $timeStr;
-                $attendance->status = $status;
-                $attendance->device_id = $deviceId;
-                $attendance->save();
+                if (!$attendance) {
+                    $attendance = StaffAttendance::updateOrCreate(
+                        [
+                            'staff_id' => $staff->id,
+                            'date' => $date,
+                        ],
+                        [
+                            'punch_in_time' => $timeStr,
+                            'status' => $status,
+                            'device_id' => $deviceId,
+                        ]
+                    );
+                } else {
+                    $attendance->date = $date;
+                    $attendance->punch_in_time = $timeStr;
+                    $attendance->status = $status;
+                    $attendance->device_id = $deviceId;
+                    $attendance->save();
+                }
             } else {
                 // Subsequent punch sets or updates punch_out_time
+                $attendance->date = $date;
                 $attendance->punch_out_time = $timeStr;
                 $attendance->device_id = $deviceId;
                 $attendance->save();

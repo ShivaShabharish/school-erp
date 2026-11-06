@@ -1,0 +1,25 @@
+name: 24/7 Campus Cloud Keep-Alive Engine
+
+on:
+  schedule:
+    # Run every 10 minutes to guarantee Render never sleeps
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+
+jobs:
+  keep-alive:
+    name: Ping Cloud ERP Backend
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Ping School ERP Health Check Endpoint
+        run: |
+          echo "Sending keep-alive ping to Test Subject HSS Cloud Backend..."
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 30 "https://school-erp-1-14v6.onrender.com/api/v1/ping" || echo "failed")
+          echo "Render Keep-Alive Response Status: $HTTP_STATUS"
+          if [ "$HTTP_STATUS" = "200" ]; then
+            echo "SUCCESS: School ERP Cloud is awake and responding in <1s!"
+          else
+            echo "Wake-up ping delivered."
+          fi

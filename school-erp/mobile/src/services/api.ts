@@ -17,10 +17,31 @@ export const getApiClient = async (): Promise<AxiosInstance> => {
       Accept: 'application/json',
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
-    timeout: 15000,
+    timeout: 45000,
   });
 
   return client;
+};
+
+// Offline-first caching helper
+const getCachedOrFetch = async (cacheKey: string, fetcher: () => Promise<any>) => {
+  try {
+    const data = await fetcher();
+    if (data !== undefined && data !== null) {
+      await AsyncStorage.setItem(cacheKey, JSON.stringify(data));
+    }
+    return data;
+  } catch (err) {
+    const cached = await AsyncStorage.getItem(cacheKey);
+    if (cached) {
+      try {
+        return JSON.parse(cached);
+      } catch {
+        // fallback to err
+      }
+    }
+    throw err;
+  }
 };
 
 export const apiService = {
@@ -39,9 +60,11 @@ export const apiService = {
   },
 
   async getMe() {
-    const client = await getApiClient();
-    const res = await client.get('/auth/user');
-    return res.data;
+    return getCachedOrFetch('@school_cache_me', async () => {
+      const client = await getApiClient();
+      const res = await client.get('/auth/user');
+      return res.data;
+    });
   },
 
   async logout() {
@@ -59,52 +82,64 @@ export const apiService = {
     return await AsyncStorage.getItem(TOKEN_KEY);
   },
 
-  // Student & Ward Portal
+  // Student & Ward Portal with Offline Cache
   async getStudentProfile(studentId?: number) {
-    const client = await getApiClient();
-    const res = await client.get('/student/profile', {
-      params: studentId ? { student_id: studentId } : {},
+    return getCachedOrFetch(`@school_cache_profile_${studentId ?? 'def'}`, async () => {
+      const client = await getApiClient();
+      const res = await client.get('/student/profile', {
+        params: studentId ? { student_id: studentId } : {},
+      });
+      return res.data.data;
     });
-    return res.data.data;
   },
 
   async getStudentAttendance(studentId?: number) {
-    const client = await getApiClient();
-    const res = await client.get('/student/attendance', {
-      params: studentId ? { student_id: studentId } : {},
+    return getCachedOrFetch(`@school_cache_att_${studentId ?? 'def'}`, async () => {
+      const client = await getApiClient();
+      const res = await client.get('/student/attendance', {
+        params: studentId ? { student_id: studentId } : {},
+      });
+      return res.data.data;
     });
-    return res.data.data;
   },
 
   async getStudentFees(studentId?: number) {
-    const client = await getApiClient();
-    const res = await client.get('/student/fees', {
-      params: studentId ? { student_id: studentId } : {},
+    return getCachedOrFetch(`@school_cache_fees_${studentId ?? 'def'}`, async () => {
+      const client = await getApiClient();
+      const res = await client.get('/student/fees', {
+        params: studentId ? { student_id: studentId } : {},
+      });
+      return res.data.data;
     });
-    return res.data.data;
   },
 
   async getStudentTimetable(studentId?: number) {
-    const client = await getApiClient();
-    const res = await client.get('/student/timetable', {
-      params: studentId ? { student_id: studentId } : {},
+    return getCachedOrFetch(`@school_cache_tt_${studentId ?? 'def'}`, async () => {
+      const client = await getApiClient();
+      const res = await client.get('/student/timetable', {
+        params: studentId ? { student_id: studentId } : {},
+      });
+      return res.data.data;
     });
-    return res.data.data;
   },
 
   async getStudentHomework(studentId?: number) {
-    const client = await getApiClient();
-    const res = await client.get('/student/homework', {
-      params: studentId ? { student_id: studentId } : {},
+    return getCachedOrFetch(`@school_cache_hw_${studentId ?? 'def'}`, async () => {
+      const client = await getApiClient();
+      const res = await client.get('/student/homework', {
+        params: studentId ? { student_id: studentId } : {},
+      });
+      return res.data.data;
     });
-    return res.data.data;
   },
 
   async getAnnouncements(category?: string) {
-    const client = await getApiClient();
-    const res = await client.get('/announcements', {
-      params: category ? { category } : {},
+    return getCachedOrFetch(`@school_cache_ann_${category ?? 'all'}`, async () => {
+      const client = await getApiClient();
+      const res = await client.get('/announcements', {
+        params: category ? { category } : {},
+      });
+      return res.data.data;
     });
-    return res.data.data;
   },
 };

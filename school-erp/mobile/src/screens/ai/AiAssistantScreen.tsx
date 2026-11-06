@@ -43,8 +43,8 @@ export const AiAssistantScreen: React.FC<{ navigation: any }> = ({ navigation })
   const [messages, setMessages] = useState<Message[]>([
     {
       sender: 'ai',
-      text: 'Vanakkam! I am Malar, your Student Mascot & AI Campus Co-Pilot for Test Subject Higher Secondary School.\n\nYou can speak with me in Tamil (தமிழ்) or English, or ask questions about attendance, timetables, fees, and homework. Tap the mic below to speak!',
-      quick_chips: ['📊 Attendance %', '📅 Timetable', '💳 Fees Due', '📝 Homework', '🚌 Bus Routes'],
+      text: 'வணக்கம்! நான் மலர், உங்கள் பள்ளி AI வழிகாட்டி.\n\nவருகைப்பதிவு %, கால அட்டவணை, கட்டண நிலுவை, வீட்டுப்பாடம் மற்றும் நேரலை பேருந்து டிராக்கர் பற்றி என்னிடம் தமிழில் கேட்கலாம். கீழே உள்ள மைக் பட்டனை அழுத்தி பேசவும்!',
+      quick_chips: ['📊 வருகைப்பதிவு %', '📅 கால அட்டவணை', '💳 கட்டண விவரம்', '📝 வீட்டுப்பாடம்', '🚌 பேருந்து டிராக்கர்'],
     },
   ]);
   const [inputText, setInputText] = useState('');
@@ -135,26 +135,26 @@ export const AiAssistantScreen: React.FC<{ navigation: any }> = ({ navigation })
       } else {
         setMessages((prev) => [
           ...prev,
-          { sender: 'ai', text: 'I am here to help. Could you please rephrase your request?' },
+          { sender: 'ai', text: 'வணக்கம்! உங்கள் கேள்வியை தெளிவாக கேட்கவும், நான் உதவுகிறேன்.' },
         ]);
       }
     } catch (error) {
       // Offline fallback rule engine if network drops
       const lower = query.toLowerCase();
-      let fallbackText = "I can assist you with your campus schedules, academic turnout, and pending fee records.";
+      let fallbackText = "வணக்கம்! வருகைப்பதிவு, கால அட்டவணை, கட்டண நிலுவை, வீட்டுப்பாடம் மற்றும் பேருந்து இருப்பிடம் பற்றி என்னிடம் கேட்கலாம்.";
       let targetScreen: string | undefined = undefined;
 
       if (lower.includes('attendance') || lower.includes('present') || lower.includes('வருகை')) {
-        fallbackText = "Your attendance is 95.6% across 84 instructional days. Tap below to inspect your monthly attendance card.";
+        fallbackText = "உங்கள் ஒட்டுமொத்த வருகைப்பதிவு 95.6% ஆகும். மாதாந்திர வருகை அறிக்கையை பார்க்க கீழே கிளிக் செய்யவும்.";
         targetScreen = 'Attendance';
-      } else if (lower.includes('timetable') || lower.includes('period') || lower.includes('வகுப்பு')) {
-        fallbackText = "Opening class timetable for today: Period 1: Mathematics, Period 2: Physics, Period 3: Chemistry.";
+      } else if (lower.includes('timetable') || lower.includes('period') || lower.includes('வகுப்பு') || lower.includes('அட்டவணை')) {
+        fallbackText = "இன்றைய வகுப்பு கால அட்டவணை திறக்கப்படுகிறது: பீரியட் 1: கணிதம், பீரியட் 2: இயற்பியல், பீரியட் 3: வேதியியல்.";
         targetScreen = 'Timetable';
       } else if (lower.includes('fee') || lower.includes('due') || lower.includes('கட்டணம்')) {
-        fallbackText = "Term 1 tuition fees ₹18,500 settled. Term 2 invoice is scheduled for release next month.";
+        fallbackText = "முதல் பருவக் கட்டணம் ₹18,500 செலுத்தப்பட்டுள்ளது. இரண்டாம் பருவக் கட்டண பட்டியல் விரைவில் அறிவிக்கப்படும்.";
         targetScreen = 'Fees';
-      } else if (lower.includes('homework') || lower.includes('assignment') || lower.includes('பாடம்')) {
-        fallbackText = "You have 2 pending assignments: Mathematics Exercise 4.2 and Physics Lab Record.";
+      } else if (lower.includes('homework') || lower.includes('assignment') || lower.includes('பாடம்') || lower.includes('வீட்டுப்பாடம்')) {
+        fallbackText = "உங்களுக்கு 2 வீட்டுப்பாடங்கள் நிலுவையில் உள்ளன: கணிதம் பயிற்சி 4.2 மற்றும் இயற்பியல் செய்முறை அறிக்கை.";
         targetScreen = 'Homework';
       }
 
@@ -164,7 +164,7 @@ export const AiAssistantScreen: React.FC<{ navigation: any }> = ({ navigation })
           sender: 'ai',
           text: fallbackText,
           target_screen: targetScreen,
-          quick_chips: ['📅 Timetable', '📊 Attendance', '💳 Fees'],
+          quick_chips: ['📅 கால அட்டவணை', '📊 வருகைப்பதிவு', '💳 கட்டண விவரம்'],
         },
       ]);
     } finally {
@@ -238,11 +238,11 @@ export const AiAssistantScreen: React.FC<{ navigation: any }> = ({ navigation })
       setIsListening(false);
       setVoiceNotice(null);
       const voicePromptsTamil = [
-        'எனது வருகை பதிவை காட்டு (Show my attendance %)',
-        'இன்றைய வகுப்பு அட்டவணை (Show class timetable)',
-        'கட்டணம் நிலுவை உள்ளதா? (Check pending fees)',
-        'இன்றைய வீட்டு பாடம் என்ன? (What is today homework?)',
-        'பள்ளி பேருந்து வழித்தடம் (School bus routes)',
+        'எனது வருகைப்பதிவை காட்டு',
+        'இன்றைய வகுப்பு கால அட்டவணை திறக்கவும்',
+        'கட்டணம் நிலுவை உள்ளதா?',
+        'இன்றைய வீட்டுப்பாடம் என்ன?',
+        'பள்ளி பேருந்து எங்கே உள்ளது?',
       ];
       const voicePromptsEnglish = [
         'Show my attendance percentage',

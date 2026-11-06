@@ -146,10 +146,10 @@
                 <button @click="voiceError = null" class="text-amber-600 font-bold ml-2 cursor-pointer">&times;</button>
             </div>
             <div class="flex items-center gap-1.5 flex-wrap pt-0.5">
-                <span class="text-[10px] text-amber-900 dark:text-amber-300 font-bold">Quick 1-Tap Voice:</span>
-                <button type="button" @click="send('Show my attendance percentage'); voiceError = null;" class="text-[10px] bg-white dark:bg-slate-800 border border-amber-300 dark:border-amber-700 px-2 py-0.5 rounded-full font-bold hover:bg-amber-100 cursor-pointer">📊 Attendance</button>
-                <button type="button" @click="send('Open class timetable'); voiceError = null;" class="text-[10px] bg-white dark:bg-slate-800 border border-amber-300 dark:border-amber-700 px-2 py-0.5 rounded-full font-bold hover:bg-amber-100 cursor-pointer">📅 Timetable</button>
-                <button type="button" @click="send('Any pending fee due?'); voiceError = null;" class="text-[10px] bg-white dark:bg-slate-800 border border-amber-300 dark:border-amber-700 px-2 py-0.5 rounded-full font-bold hover:bg-amber-100 cursor-pointer">💳 Fees Due</button>
+                <span class="text-[10px] text-amber-900 dark:text-amber-300 font-bold">1-கிளிக் குரல் கட்டளைகள்:</span>
+                <button type="button" @click="send('எனது வருகைப்பதிவு என்ன?'); voiceError = null;" class="text-[10px] bg-white dark:bg-slate-800 border border-amber-300 dark:border-amber-700 px-2 py-0.5 rounded-full font-bold hover:bg-amber-100 cursor-pointer">📊 வருகைப்பதிவு</button>
+                <button type="button" @click="send('வகுப்பு கால அட்டவணை திறக்கவும்'); voiceError = null;" class="text-[10px] bg-white dark:bg-slate-800 border border-amber-300 dark:border-amber-700 px-2 py-0.5 rounded-full font-bold hover:bg-amber-100 cursor-pointer">📅 கால அட்டவணை</button>
+                <button type="button" @click="send('கட்டண நிலுவை உள்ளதா?'); voiceError = null;" class="text-[10px] bg-white dark:bg-slate-800 border border-amber-300 dark:border-amber-700 px-2 py-0.5 rounded-full font-bold hover:bg-amber-100 cursor-pointer">💳 கட்டண விவரம்</button>
             </div>
         </div>
 
@@ -173,7 +173,7 @@
                                 :href="msg.web_url"
                                 class="inline-flex items-center gap-1.5 mt-2 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] transition shadow-xs"
                             >
-                                <span>Navigate to Page</span>
+                                <span>பக்கத்திற்குச் செல்ல</span>
                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
                             </a>
                         </template>
@@ -186,26 +186,29 @@
                 <div class="w-2 h-2 rounded-full bg-emerald-500 animate-bounce"></div>
                 <div class="w-2 h-2 rounded-full bg-emerald-500 animate-bounce [animation-delay:0.2s]"></div>
                 <div class="w-2 h-2 rounded-full bg-emerald-500 animate-bounce [animation-delay:0.4s]"></div>
-                <span>Malar AI is processing...</span>
+                <span>மலர் AI பதிலளிக்கிறது...</span>
             </div>
         </div>
 
         <!-- Quick Prompt Chips -->
         <div class="px-4 py-2 border-t border-slate-100 dark:border-slate-800 flex gap-1.5 overflow-x-auto text-[11px] no-scrollbar">
-            <button @click="send('Show my attendance percentage')" class="whitespace-nowrap px-2.5 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 hover:bg-emerald-100 font-semibold transition cursor-pointer">
-                📊 Attendance %
+            <button @click="send('எனது வருகைப்பதிவை காட்டு')" class="whitespace-nowrap px-2.5 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 hover:bg-emerald-100 font-semibold transition cursor-pointer">
+                📊 வருகைப்பதிவு %
             </button>
-            <button @click="send('Open class timetable')" class="whitespace-nowrap px-2.5 py-1 rounded-full bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800 hover:bg-blue-100 font-semibold transition cursor-pointer">
-                📅 Timetable
+            <button @click="send('வகுப்பு கால அட்டவணை திறக்கவும்')" class="whitespace-nowrap px-2.5 py-1 rounded-full bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800 hover:bg-blue-100 font-semibold transition cursor-pointer">
+                📅 கால அட்டவணை
             </button>
-            <button @click="send('Any pending fee due?')" class="whitespace-nowrap px-2.5 py-1 rounded-full bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800 hover:bg-amber-100 font-semibold transition cursor-pointer">
-                💳 Fees Due
+            <button @click="send('கட்டண நிலுவை உள்ளதா?')" class="whitespace-nowrap px-2.5 py-1 rounded-full bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800 hover:bg-amber-100 font-semibold transition cursor-pointer">
+                💳 கட்டண விவரம்
             </button>
-            <button @click="send('Show today homework')" class="whitespace-nowrap px-2.5 py-1 rounded-full bg-purple-50 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800 hover:bg-purple-100 font-semibold transition cursor-pointer">
-                📝 Homework
+            <button @click="send('இன்றைய வீட்டுப்பாடம் என்ன?')" class="whitespace-nowrap px-2.5 py-1 rounded-full bg-purple-50 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800 hover:bg-purple-100 font-semibold transition cursor-pointer">
+                📝 வீட்டுப்பாடம்
             </button>
-            <button @click="send('School bus timings and route')" class="whitespace-nowrap px-2.5 py-1 rounded-full bg-teal-50 dark:bg-teal-950/60 text-teal-700 dark:text-teal-300 border border-teal-200 dark:border-teal-800 hover:bg-teal-100 font-semibold transition cursor-pointer">
-                🚌 Bus Routes
+            <button @click="send('பள்ளி பேருந்து எங்கே உள்ளது?')" class="whitespace-nowrap px-2.5 py-1 rounded-full bg-teal-50 dark:bg-teal-950/60 text-teal-700 dark:text-teal-300 border border-teal-200 dark:border-teal-800 hover:bg-teal-100 font-semibold transition cursor-pointer">
+                🚌 பேருந்து டிராக்கர்
+            </button>
+            <button @click="send('பள்ளி சுற்றறிக்கை பார்க்க')" class="whitespace-nowrap px-2.5 py-1 rounded-full bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800 hover:bg-rose-100 font-semibold transition cursor-pointer">
+                📢 சுற்றறிக்கை
             </button>
         </div>
 
@@ -264,14 +267,14 @@ function aiCampusMascot() {
         open: false,
         listening: false,
         loading: false,
-        lang: 'en-IN', // Default en-IN for broad compatibility; toggles to ta-IN
+        lang: 'ta-IN', // Default Tamil (ta-IN) for authentic Tamil commands & voice
         inputQuery: '',
         voiceError: null,
         recognition: null,
         messages: [
             {
                 sender: 'ai',
-                text: 'Vanakkam! I am Malar, your Student Mascot & AI Campus Co-Pilot for Test Subject Higher Secondary School. \n\nYou can speak with me in Tamil (தமிழ்) or English, or ask about attendance %, timetable, fees, or campus navigation. Tap the mic to speak!'
+                text: 'வணக்கம்! நான் உங்கள் மலர் AI கல்வி வழிகாட்டி.\n\nவருகைப்பதிவு %, கால அட்டவணை, கட்டண நிலுவை, வீட்டுப்பாடம் மற்றும் நேரலை பேருந்து டிராக்கர் பற்றி என்னிடம் தமிழில் கேட்கலாம். மைக் பட்டனை அழுத்தி பேசவும்!'
             }
         ],
         toggleLang() {

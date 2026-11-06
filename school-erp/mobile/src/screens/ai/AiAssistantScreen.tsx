@@ -123,6 +123,9 @@ export const AiAssistantScreen: React.FC<{ navigation: any }> = ({ navigation })
         };
         setMessages((prev) => [...prev, aiMsg]);
 
+        // Speak aloud in authentic Tamil or English voice
+        speakText(response.data.response);
+
         // Auto navigate if voice command specifically requested navigation
         if (response.data.action === 'navigate' && response.data.target_screen) {
           const lower = query.toLowerCase();
@@ -258,8 +261,57 @@ export const AiAssistantScreen: React.FC<{ navigation: any }> = ({ navigation })
     }, 2200);
   };
 
+  const speakText = (text: string) => {
+    if (typeof window === 'undefined' || !('speechSynthesis' in window)) return;
+    try {
+      window.speechSynthesis.cancel();
+      const clean = (text || '').replace(/[#*_`]/g, '').split('\n')[0];
+      if (!clean) return;
+
+      const utterance = new SpeechSynthesisUtterance(clean);
+      const voices = window.speechSynthesis.getVoices() || [];
+
+      if (voiceLanguage === 'ta-IN') {
+        utterance.lang = 'ta-IN';
+        const taVoice = voices.find(
+          (v: any) =>
+            v.lang === 'ta-IN' ||
+            v.lang === 'ta' ||
+            v.lang.startsWith('ta-') ||
+            (v.name && v.name.toLowerCase().includes('tamil')) ||
+            (v.name && v.name.toLowerCase().includes('valluvar')) ||
+            (v.name && v.name.toLowerCase().includes('latha'))
+        );
+        if (taVoice) utterance.voice = taVoice;
+        utterance.rate = 0.92;
+      } else {
+        utterance.lang = 'en-IN';
+        const enVoice = voices.find(
+          (v: any) =>
+            v.lang === 'en-IN' ||
+            (v.lang && v.lang.startsWith('en') && v.name && v.name.toLowerCase().includes('india'))
+        );
+        if (enVoice) utterance.voice = enVoice;
+        utterance.rate = 1.0;
+      }
+
+      utterance.pitch = 1.0;
+      window.speechSynthesis.speak(utterance);
+    } catch (e) {
+      console.warn('Speech synthesis error:', e);
+    }
+  };
+
   const toggleLanguage = () => {
-    setVoiceLanguage((prev) => (prev === 'ta-IN' ? 'en-IN' : 'ta-IN'));
+    setVoiceLanguage((prev) => {
+      const next = prev === 'ta-IN' ? 'en-IN' : 'ta-IN';
+      if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+        try {
+          window.speechSynthesis.cancel();
+        } catch (e) {}
+      }
+      return next;
+    });
   };
 
   return (
@@ -339,6 +391,19 @@ export const AiAssistantScreen: React.FC<{ navigation: any }> = ({ navigation })
               >
                 {msg.text}
               </Text>
+
+              {/* Speaker Voice Replay Button */}
+              {msg.sender === 'ai' && (
+                <TouchableOpacity
+                  style={styles.speakerBtn}
+                  onPress={() => speakText(msg.text)}
+                >
+                  <Volume2 size={12} color="#059669" />
+                  <Text style={styles.speakerBtnText}>
+                    {voiceLanguage === 'ta-IN' ? 'தமிழில் கேட்கவும்' : 'Listen'}
+                  </Text>
+                </TouchableOpacity>
+              )}
 
               {/* Direct Screen Navigation Action Button */}
               {msg.target_screen && (
@@ -589,6 +654,25 @@ const styles = StyleSheet.create({
   },
   aiText: {
     color: '#1E293B',
+  },
+  speakerBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: '#ecfdf5',
+    borderWidth: 1,
+    borderColor: '#a7f3d0',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+    alignSelf: 'flex-start',
+    marginTop: 6,
+    marginBottom: 4,
+  },
+  speakerBtnText: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#047857',
   },
   navButton: {
     flexDirection: 'row',

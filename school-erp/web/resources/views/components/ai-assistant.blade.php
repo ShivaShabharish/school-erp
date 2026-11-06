@@ -168,15 +168,28 @@
                             : 'bg-slate-100 dark:bg-slate-800/80 text-slate-800 dark:text-slate-100 rounded-2xl rounded-tl-xs px-4 py-2.5 max-w-[85%] shadow-sm border border-slate-200/50 dark:border-slate-700/50'"
                     >
                         <p class="leading-relaxed whitespace-pre-line" x-text="msg.text"></p>
-                        <template x-if="msg.web_url">
-                            <a
-                                :href="msg.web_url"
-                                class="inline-flex items-center gap-1.5 mt-2 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] transition shadow-xs"
-                            >
-                                <span>பக்கத்திற்குச் செல்ல</span>
-                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
-                            </a>
-                        </template>
+                        <div class="flex items-center gap-2 mt-2 flex-wrap">
+                            <template x-if="msg.sender === 'ai'">
+                                <button
+                                    type="button"
+                                    @click="speak(msg.text)"
+                                    class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold bg-white dark:bg-slate-700 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-600 hover:bg-emerald-50 dark:hover:bg-slate-600 transition shadow-xs cursor-pointer"
+                                    title="குரலில் கேட்கவும் (Listen in Voice)"
+                                >
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/></svg>
+                                    <span x-text="lang === 'ta-IN' ? 'தமிழில் கேட்கவும்' : 'Listen'"></span>
+                                </button>
+                            </template>
+                            <template x-if="msg.web_url">
+                                <a
+                                    :href="msg.web_url"
+                                    class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] transition shadow-xs"
+                                >
+                                    <span>பக்கத்திற்குச் செல்ல</span>
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                                </a>
+                            </template>
+                        </div>
                     </div>
                 </div>
             </template>
@@ -282,6 +295,48 @@ function aiCampusMascot() {
             if (this.listening && this.recognition) {
                 try { this.recognition.abort(); } catch(e) {}
                 this.listening = false;
+            }
+            if ('speechSynthesis' in window) {
+                try { window.speechSynthesis.cancel(); } catch(e) {}
+            }
+        },
+        speak(text) {
+            if (!('speechSynthesis' in window)) return;
+            try {
+                window.speechSynthesis.cancel();
+                const cleanText = (text || '').replace(/[#*_`]/g, '').split('\n')[0];
+                if (!cleanText) return;
+
+                const utterance = new SpeechSynthesisUtterance(cleanText);
+                const voices = window.speechSynthesis.getVoices() || [];
+
+                if (this.lang === 'ta-IN') {
+                    utterance.lang = 'ta-IN';
+                    const taVoice = voices.find(v => 
+                        v.lang === 'ta-IN' || 
+                        v.lang === 'ta' || 
+                        v.lang.startsWith('ta-') || 
+                        (v.name && v.name.toLowerCase().includes('tamil')) ||
+                        (v.name && v.name.toLowerCase().includes('valluvar')) ||
+                        (v.name && v.name.toLowerCase().includes('latha'))
+                    );
+                    if (taVoice) {
+                        utterance.voice = taVoice;
+                    }
+                    utterance.rate = 0.92;
+                } else {
+                    utterance.lang = 'en-IN';
+                    const enVoice = voices.find(v => v.lang === 'en-IN' || (v.lang && v.lang.startsWith('en') && v.name && v.name.toLowerCase().includes('india')));
+                    if (enVoice) {
+                        utterance.voice = enVoice;
+                    }
+                    utterance.rate = 1.0;
+                }
+
+                utterance.pitch = 1.0;
+                window.speechSynthesis.speak(utterance);
+            } catch (err) {
+                console.warn('Speech synthesis error:', err);
             }
         },
         toggle() {
@@ -410,16 +465,9 @@ function aiCampusMascot() {
                         web_url: data.web_url
                     });
 
-                    // Voice Speech Synthesis Feedback
-                    if ('speechSynthesis' in window && !this.listening) {
-                        try {
-                            window.speechSynthesis.cancel();
-                            const cleanText = data.response.replace(/[#*_`]/g, '').split('\n')[0];
-                            const utterance = new SpeechSynthesisUtterance(cleanText);
-                            utterance.lang = this.lang === 'ta-IN' ? 'ta-IN' : 'en-IN';
-                            utterance.rate = 1.0;
-                            window.speechSynthesis.speak(utterance);
-                        } catch (sErr) {}
+                    // Authentic Voice Speech Synthesis Feedback (Tamil / English)
+                    if (!this.listening) {
+                        this.speak(data.response);
                     }
 
                     // Auto navigate if prompt specifically requested navigation

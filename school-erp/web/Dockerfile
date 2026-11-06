@@ -39,5 +39,6 @@ RUN composer install --no-dev --optimize-autoloader --no-interaction \
 ENV PORT=8000
 EXPOSE 8000
 
+# Build Version 3.1: Tamil Malar AI Assistant & Cold-Start Auto-Retry Resilience
 # Start command: Instant 1-second startup without blocking on heavy seeders
 CMD php artisan migrate --force || true && php artisan serve --host=0.0.0.0 --port=${PORT:-8000}

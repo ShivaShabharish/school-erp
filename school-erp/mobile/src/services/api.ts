@@ -45,18 +45,50 @@ const getCachedOrFetch = async (cacheKey: string, fetcher: () => Promise<any>) =
 };
 
 export const apiService = {
-  // Auth
-  async login(email: string, password: string, deviceName = 'ExpoMobileApp') {
-    const client = await getApiClient();
-    const res = await client.post('/auth/token', {
-      email,
-      password,
-      device_name: deviceName,
-    });
-    if (res.data.token) {
-      await AsyncStorage.setItem(TOKEN_KEY, res.data.token);
+  // Auth with intelligent cold-server wake-up retry engine
+  async login(
+    email: string,
+    password: string,
+    onStatus?: (status: string) => void,
+    deviceName = 'ExpoMobileApp'
+  ) {
+    const maxRetries = 6;
+    let attempt = 0;
+
+    while (attempt < maxRetries) {
+      attempt++;
+      try {
+        if (attempt > 1 && onStatus) {
+          onStatus(`⚡ Cloud Server is waking up (Render Free Tier)... Attempt ${attempt}/${maxRetries}`);
+        }
+        const client = await getApiClient();
+        const res = await client.post('/auth/token', {
+          email,
+          password,
+          device_name: deviceName,
+        });
+        if (res.data.token) {
+          await AsyncStorage.setItem(TOKEN_KEY, res.data.token);
+        }
+        return res.data;
+      } catch (err: any) {
+        const isNetworkOrCold =
+          !err.response ||
+          err.response.status >= 500 ||
+          err.code === 'ECONNABORTED' ||
+          err.message?.includes('Network Error') ||
+          (typeof err.response?.data === 'string' && err.response.data.includes('Render'));
+
+        if (isNetworkOrCold && attempt < maxRetries) {
+          if (onStatus) {
+            onStatus(`⚡ Cloud Server is waking up... Please hold on (${attempt}/${maxRetries})`);
+          }
+          await new Promise((resolve) => setTimeout(resolve, 3500));
+        } else {
+          throw err;
+        }
+      }
     }
-    return res.data;
   },
 
   async getMe() {

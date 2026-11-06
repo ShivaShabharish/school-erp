@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -11,18 +11,27 @@ import {
   ScrollView,
   Alert,
 } from 'react-native';
+import axios from 'axios';
 import { Colors } from '../../theme/colors';
 import { useAuth } from '../../context/AuthContext';
 import { getApiBaseUrl, setApiBaseUrl, PRODUCTION_RENDER_API_BASE_URL, WIFI_API_BASE_URL, CLOUDFLARE_API_BASE_URL } from '../../config/env';
 
 export const LoginScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
-  const { login } = useAuth();
+  const { login, loginDemo } = useAuth();
   const [email, setEmail] = useState('parent@school.test');
   const [password, setPassword] = useState('Password@123');
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [wakeStatus, setWakeStatus] = useState('');
   const [showConfig, setShowConfig] = useState(false);
   const [customApiUrl, setCustomApiUrl] = useState('');
+
+  // Pre-warm backend container immediately upon opening app
+  useEffect(() => {
+    getApiBaseUrl().then((baseUrl) => {
+      axios.get(`${baseUrl}/ping`, { timeout: 25000 }).catch(() => {});
+    });
+  }, []);
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -31,10 +40,13 @@ export const LoginScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
     }
 
     setErrorMessage('');
+    setWakeStatus('');
     setIsLoading(true);
 
     try {
-      await login(email.trim(), password);
+      await login(email.trim(), password, (status) => {
+        setWakeStatus(status);
+      });
     } catch (err: any) {
       console.log('Login failed', err);
       if (err.response?.status === 503) {
@@ -42,17 +54,22 @@ export const LoginScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
       } else if (err.response?.data?.message) {
         setErrorMessage(err.response.data.message);
       } else {
-        setErrorMessage('Could not connect to ERP server. Check network connection.');
+        setErrorMessage('Cloud server is waking up. Tap "Instant Demo Mode" below to enter immediately without waiting!');
       }
     } finally {
       setIsLoading(false);
+      setWakeStatus('');
     }
   };
 
-  const handleDemoSelect = (demoEmail: string) => {
+  const handleDemoSelect = async (demoEmail: string, role: 'parent' | 'teacher' | 'principal' = 'parent') => {
     setEmail(demoEmail);
     setPassword('Password@123');
     setErrorMessage('');
+  };
+
+  const handleInstantDemo = (role: 'parent' | 'teacher' | 'principal' = 'parent') => {
+    loginDemo(role);
   };
 
   const openConfig = async () => {
@@ -88,6 +105,13 @@ export const LoginScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Sign In to Your Account</Text>
           <Text style={styles.cardSubtitle}>Students, Parents & Faculty Access</Text>
+
+          {wakeStatus ? (
+            <View style={styles.wakeBox}>
+              <ActivityIndicator color="#047857" size="small" />
+              <Text style={styles.wakeText}>{wakeStatus}</Text>
+            </View>
+          ) : null}
 
           {errorMessage ? (
             <View style={styles.errorBox}>
@@ -136,23 +160,31 @@ export const LoginScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
             <View style={styles.demoGrid}>
               <TouchableOpacity
                 style={styles.demoPill}
-                onPress={() => handleDemoSelect('parent@school.test')}
+                onPress={() => handleDemoSelect('parent@school.test', 'parent')}
               >
                 <Text style={styles.demoPillText}>Parent / Ward</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.demoPill}
-                onPress={() => handleDemoSelect('teacher@school.test')}
+                onPress={() => handleDemoSelect('teacher@school.test', 'teacher')}
               >
                 <Text style={styles.demoPillText}>Teacher</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.demoPill}
-                onPress={() => handleDemoSelect('principal@school.test')}
+                onPress={() => handleDemoSelect('principal@school.test', 'principal')}
               >
                 <Text style={styles.demoPillText}>Principal</Text>
               </TouchableOpacity>
             </View>
+
+            {/* Instant Offline / Evaluator Demo Mode */}
+            <TouchableOpacity
+              style={styles.instantDemoBtn}
+              onPress={() => handleInstantDemo('parent')}
+            >
+              <Text style={styles.instantDemoBtnText}>⚡ 1-Tap Instant Demo Access (No Wait)</Text>
+            </TouchableOpacity>
           </View>
 
           {/* Server Config Switcher */}
@@ -284,6 +316,23 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     marginTop: 2,
   },
+  wakeBox: {
+    backgroundColor: '#ecfdf5',
+    borderLeftWidth: 4,
+    borderLeftColor: '#059669',
+    padding: 10,
+    borderRadius: 8,
+    marginBottom: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  wakeText: {
+    color: '#065f46',
+    fontSize: 12,
+    fontWeight: '600',
+    flex: 1,
+  },
   errorBox: {
     backgroundColor: '#fee2e2',
     borderLeftWidth: 4,
@@ -366,6 +415,23 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: '700',
     color: Colors.primaryDark,
+  },
+  instantDemoBtn: {
+    marginTop: 12,
+    backgroundColor: '#047857',
+    paddingVertical: 10,
+    borderRadius: 10,
+    alignItems: 'center',
+    shadowColor: '#047857',
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  instantDemoBtnText: {
+    color: '#ffffff',
+    fontSize: 12,
+    fontWeight: 'bold',
+    letterSpacing: 0.2,
   },
   configToggle: {
     marginTop: 18,

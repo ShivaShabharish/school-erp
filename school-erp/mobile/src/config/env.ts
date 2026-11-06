@@ -23,14 +23,22 @@ export const getApiBaseUrl = async (): Promise<string> => {
     }
 
     const saved = await AsyncStorage.getItem(API_STORAGE_KEY);
-    // If the saved URL is the dead old tunnel, default back to active WiFi or fresh tunnel
-    if (saved && (saved.includes('calgary-dental') || saved.includes('increase-boxes'))) {
+    // Sanitize saved URL: Discard local laptop IPs, dead tunnels, or invalid schemes
+    if (
+      saved &&
+      (saved.includes('192.168.') ||
+        saved.includes('10.0.') ||
+        saved.includes('localhost') ||
+        saved.includes('calgary-dental') ||
+        saved.includes('increase-boxes') ||
+        !saved.startsWith('https://'))
+    ) {
       await AsyncStorage.removeItem(API_STORAGE_KEY);
-      return DEFAULT_API_BASE_URL;
+      return PRODUCTION_RENDER_API_BASE_URL;
     }
-    return saved || DEFAULT_API_BASE_URL;
+    return saved || PRODUCTION_RENDER_API_BASE_URL;
   } catch {
-    return DEFAULT_API_BASE_URL;
+    return PRODUCTION_RENDER_API_BASE_URL;
   }
 };
 
